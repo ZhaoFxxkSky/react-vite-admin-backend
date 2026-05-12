@@ -1,0 +1,13 @@
+database:
+  primary:
+    host: "${DB_HOST}"
+    port: 3006
+    user: "${DB_USER}"
+    password: "${DB_PASSWORD}"
+    database: "${DB_NAME}"
+
+redis:
+  host: "${REDIS_HOST}"
+  port: 6379
+  password: "${REDIS_PASSWORD}"
+  db: 0

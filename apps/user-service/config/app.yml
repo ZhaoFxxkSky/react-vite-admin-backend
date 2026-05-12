@@ -1,0 +1,31 @@
+app:
+  port: 3000
+  env: development
+
+database:
+  primary:
+    host: localhost
+    port: 3306
+    user: root
+    password: root
+    database: data_space
+
+redis:
+  host: localhost
+  port: 6379
+  password: null
+  db: 0
+
+jwt:
+  secret: dev-jwt-secret-change-in-production
+  expiresIn: 15m
+  refreshSecret: dev-refresh-secret-change-in-production
+  refreshExpiresIn: 7d
+
+storage:
+  type: local
+  local:
+    path: uploads
+  minio:
+    endpoint: null
+    bucket: null

@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"d:\\\\私有项目\\\\backend\\\\data-space\" log --oneline -20)",
+      "Bash(git -C \"d:\\\\私有项目\\\\backend\\\\data-space\" status)",
+      "Bash(mkdir -p \"d:\\\\私有项目\\\\backend\\\\data-space\\\\apps\\\\user-service\\\\src\\\\modules\\\\session\\\\dto\")",
+      "Bash(git -C \"d:\\\\私有项目\\\\backend\\\\data-space\" status --short)",
+      "Bash(npx prisma *)",
+      "Bash(cross-env NODE_OPTIONS=--experimental-require-module npx prisma migrate status)"
+    ],
+    "additionalDirectories": [
+      "d:\\私有项目\\backend\\data-space\\apps\\user-service\\src\\modules\\session"
+    ]
+  }
+}

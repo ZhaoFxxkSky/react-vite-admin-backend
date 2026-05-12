@@ -1,0 +1,262 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id                Int      @id @default(autoincrement())
+  username          String   @unique @db.VarChar(50)
+  email             String?  @unique @db.VarChar(100)
+  phone             String?  @unique @db.VarChar(20)
+  password          String   @db.VarChar(255)
+  realName          String?  @map("real_name") @db.VarChar(50)
+  nickName          String?  @map("nick_name") @db.VarChar(50)
+  avatar            String?  @db.VarChar(500)
+  gender            String?  @default("unknown") @db.VarChar(10)
+  birthday          DateTime? @db.Date
+  employeeNo        String?  @unique @map("employee_no") @db.VarChar(50)
+  jobTitle          String?  @map("job_title") @db.VarChar(50)
+  isSuperAdmin      Boolean  @default(false) @map("is_super_admin")
+  status            String   @default("active") @db.VarChar(20)
+  lastLoginAt       DateTime? @map("last_login_at")
+  lastLoginIp       String?  @map("last_login_ip") @db.VarChar(50)
+  loginFailCount    Int      @default(0) @map("login_fail_count")
+  passwordChangedAt DateTime? @map("password_changed_at")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")
+
+  userRoles         UserRole[]
+  userOrganizations UserOrganization[]
+  files             File[]
+  refreshTokens     RefreshToken[]
+
+  @@map("tds_users")
+}
+
+model Role {
+  id                      Int      @id @default(autoincrement())
+  name                    String   @db.VarChar(50)
+  code                    String   @unique @db.VarChar(50)
+  description             String?  @db.VarChar(255)
+  type                    String   @default("custom") @db.VarChar(20)
+  level                   Int      @default(1)
+  status                  String   @default("active") @db.VarChar(20)
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @default(now()) @updatedAt @map("updated_at")
+
+  userRoles               UserRole[]
+  rolePermissions         RolePermission[]
+  roleApiPermissions      RoleApiPermission[]
+  roleDataPermissionScopes RoleDataPermissionScope[]
+  roleResourceConfigs     RoleResourceConfig[]
+
+  @@map("tds_roles")
+}
+
+model Permission {
+  id              Int      @id @default(autoincrement())
+  pid             Int      @default(0)
+  code            String   @unique @db.VarChar(100)
+  type            String   @default("menu") @db.VarChar(20)
+  name            String?  @db.VarChar(100)
+  path            String?  @db.VarChar(255)
+  component       String?  @db.VarChar(255)
+  redirect        String?  @db.VarChar(255)
+  handle          Json?
+  sortOrder       Int      @default(0) @map("sort_order")
+  isSensitive     Boolean  @default(false) @map("is_sensitive")
+  status          String   @default("active") @db.VarChar(20)
+  isBuiltIn       Boolean  @default(false) @map("is_built_in")
+  description     String?  @db.VarChar(255)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
+
+  rolePermissions RolePermission[]
+
+  @@map("tds_permissions")
+}
+
+model Organization {
+  id              Int      @id @default(autoincrement())
+  parentId        Int?     @map("parent_id")
+  code            String   @unique @db.VarChar(64)
+  name            String   @db.VarChar(100)
+  type            String   @default("department") @db.VarChar(20)
+  leaderId        Int?     @map("leader_id")
+  sortOrder       Int      @default(0) @map("sort_order")
+  description     String?  @db.VarChar(255)
+  status          String   @default("active") @db.VarChar(20)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
+
+  userOrganizations UserOrganization[]
+
+  @@map("tds_organizations")
+}
+
+model UserRole {
+  userId    Int      @map("user_id")
+  roleId    Int      @map("role_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("tds_user_roles")
+}
+
+model RolePermission {
+  roleId       Int      @map("role_id")
+  permissionId Int      @map("permission_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("tds_role_permissions")
+}
+
+model UserOrganization {
+  userId         Int      @map("user_id")
+  organizationId Int      @map("organization_id")
+  isPrimary      Boolean  @default(true) @map("is_primary")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@id([userId, organizationId])
+  @@map("tds_user_organizations")
+}
+
+model File {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @map("user_id")
+  originalName String   @map("original_name") @db.VarChar(255)
+  fileName     String   @map("file_name") @db.VarChar(255)
+  path         String   @db.VarChar(500)
+  url          String   @db.VarChar(500)
+  storageType  String   @map("storage_type") @db.VarChar(20)
+  size         Int
+  mimeType     String   @map("mime_type") @db.VarChar(100)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("tds_files")
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  token     String   @unique @db.VarChar(255)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("tds_refresh_tokens")
+}
+
+model AuditLog {
+  id           Int      @id @default(autoincrement())
+  serviceName  String   @default("user-service") @map("service_name") @db.VarChar(50)
+  eventType    String   @default("http") @map("event_type") @db.VarChar(20)
+  userId       Int?     @map("user_id")
+  action       String   @db.VarChar(255)
+  resource     String   @db.VarChar(50)
+  resourceId   String?  @map("resource_id") @db.VarChar(100)
+  ip           String?  @db.VarChar(50)
+  userAgent    String?  @map("user_agent") @db.VarChar(500)
+  statusCode   Int?     @map("status_code")
+  duration     Int?
+  metadata     Json?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("tds_audit_logs")
+}
+
+model DataPermissionMeta {
+  id                    Int      @id @default(autoincrement())
+  resourceCode          String   @unique @map("resource_code") @db.VarChar(100)
+  resourceName          String   @map("resource_name") @db.VarChar(100)
+  entity                String   @db.VarChar(100)
+  treeStrategy          String   @default("NONE") @map("tree_strategy") @db.VarChar(32)
+  visibleScope          Json     @map("visible_scope")
+  operateScopes         Json     @map("operate_scopes")
+  createOwnershipFields Json?    @map("create_ownership_fields")
+  supportedActions      Json     @map("supported_actions")
+  supportedDimensions   Json     @map("supported_dimensions")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("tds_data_permission_resource_meta")
+}
+
+model RoleDataPermissionScope {
+  id           Int      @id @default(autoincrement())
+  roleId       Int      @map("role_id")
+  resourceCode String   @map("resource_code") @db.VarChar(100)
+  action       String   @default("view") @db.VarChar(20)
+  scope        String   @default("ORG") @db.VarChar(20)
+  dimension    String   @default("DEPT") @db.VarChar(20)
+  customTargets Json?   @map("custom_org_ids")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+
+  role         Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, resourceCode, action])
+  @@map("tds_role_data_permission_scopes")
+}
+
+model RoleResourceConfig {
+  id           Int      @id @default(autoincrement())
+  roleId       Int      @map("role_id")
+  resourceCode String   @map("resource_code") @db.VarChar(100)
+  enabled      Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+
+  role         Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, resourceCode])
+  @@map("tds_role_resource_configs")
+}
+
+model ApiPermission {
+  id          Int      @id @default(autoincrement())
+  code        String   @unique @db.VarChar(100)
+  name        String   @db.VarChar(100)
+  module      String   @db.VarChar(50)
+  category    String?  @db.VarChar(50)
+  method      String   @db.VarChar(10)
+  path        String   @db.VarChar(200)
+  description String?  @db.Text
+  enabled     Boolean  @default(true)
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  roleApiPermissions RoleApiPermission[]
+
+  @@map("tds_api_permissions")
+}
+
+model RoleApiPermission {
+  roleId          Int      @map("role_id")
+  apiPermissionId Int      @map("api_permission_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  role            Role          @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  apiPermission   ApiPermission @relation(fields: [apiPermissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, apiPermissionId])
+  @@map("tds_role_api_permissions")
+}
