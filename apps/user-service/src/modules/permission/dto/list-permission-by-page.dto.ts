@@ -21,4 +21,6 @@ export const listPermissionByPageSchema = extendApi(
   { title: 'ListPermissionByPageDto', description: '分页查询权限请求参数' },
 );
 
-export type ListPermissionByPageDto = z.infer<typeof listPermissionByPageSchema>;
+export type ListPermissionByPageDto = z.infer<
+  typeof listPermissionByPageSchema
+>;

@@ -148,7 +148,7 @@ export class ApiPermissionService {
     roleId: number,
     apiPermissionIds: number[],
   ): Promise<void> {
-    await this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx: any) => {
       await tx.roleApiPermission.deleteMany({ where: { roleId } });
 
       if (apiPermissionIds.length > 0) {
@@ -157,7 +157,7 @@ export class ApiPermissionService {
           where: { id: { in: dedup } },
           select: { id: true },
         });
-        const validIds = new Set(valid.map((v) => v.id));
+        const validIds = new Set(valid.map((v: any) => v.id));
         const insertable = dedup.filter((id) => validIds.has(id));
 
         if (insertable.length > 0) {
@@ -172,3 +172,4 @@ export class ApiPermissionService {
     });
   }
 }
+

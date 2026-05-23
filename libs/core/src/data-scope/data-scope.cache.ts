@@ -20,7 +20,9 @@ export class DataScopeCache {
     this.map.clear();
   }
 
-  entries(): IterableIterator<[string, { resourceCode: string; action: string }]> {
+  entries(): IterableIterator<
+    [string, { resourceCode: string; action: string }]
+  > {
     return this.map.entries();
   }
 }

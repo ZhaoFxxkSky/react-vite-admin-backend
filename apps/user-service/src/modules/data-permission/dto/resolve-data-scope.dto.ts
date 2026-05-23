@@ -13,7 +13,15 @@ export const resolveDataScopeSchema = extendApi(
     }),
     action: extendApi(
       z
-        .enum(['view', 'create', 'update', 'delete', 'export', 'approve', 'assign'])
+        .enum([
+          'view',
+          'create',
+          'update',
+          'delete',
+          'export',
+          'approve',
+          'assign',
+        ])
         .default('view'),
       {
         description: '操作类型',

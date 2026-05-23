@@ -45,6 +45,36 @@ import { AuthenticatedUser, removeByIdSchema, RemoveByIdDto } from '@shared';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  // ===================== Excel 导入导出 =====================
+
+  @Get('export')
+  @ApiPermission({
+    code: 'system:user:export',
+    name: '导出用户',
+    module: '用户管理',
+  })
+  @ApiOperation({ summary: '导出用户列表到 Excel' })
+  async exportUsers(@Query() query: any) {
+    return this.userService.exportUsers(query);
+  }
+
+  @Post('import')
+  @ApiPermission({
+    code: 'system:user:import',
+    name: '导入用户',
+    module: '用户管理',
+  })
+  @ApiOperation({ summary: '从 Excel 批量导入用户' })
+  async importUsers(@Body() data: any[]) {
+    return this.userService.importUsers(data);
+  }
+
+  @Get('import-template')
+  @ApiOperation({ summary: '下载用户导入模板' })
+  async downloadTemplate() {
+    return this.userService.generateImportTemplate();
+  }
+
   // ===================== 管理员接口 =====================
 
   @Post('listByPage')

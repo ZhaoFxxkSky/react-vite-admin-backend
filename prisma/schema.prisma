@@ -31,6 +31,8 @@ model User {
 
   userRoles         UserRole[]
   userOrganizations UserOrganization[]
+  userPosts         UserPost[]
+  oauths            UserOAuth[]
   files             File[]
   refreshTokens     RefreshToken[]
 
@@ -259,4 +261,143 @@ model RoleApiPermission {
 
   @@id([roleId, apiPermissionId])
   @@map("tds_role_api_permissions")
+}
+
+model LoginLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int?     @map("user_id")
+  username  String?  @db.VarChar(50)
+  ip        String?  @db.VarChar(50)
+  userAgent String?  @map("user_agent") @db.VarChar(500)
+  location  String?  @db.VarChar(100)
+  status    String   @default("success") @db.VarChar(20)
+  message   String?  @db.VarChar(255)
+  loginType String   @default("password") @map("login_type") @db.VarChar(20)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("tds_login_logs")
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model PasswordPolicy {
+  id                Int      @id @default(autoincrement())
+  minLength         Int      @default(8) @map("min_length")
+  maxLength         Int      @default(32) @map("max_length")
+  requireUppercase  Boolean  @default(true) @map("require_uppercase")
+  requireLowercase  Boolean  @default(true) @map("require_lowercase")
+  requireNumbers    Boolean  @default(true) @map("require_numbers")
+  requireSymbols    Boolean  @default(false) @map("require_symbols")
+  expiryDays        Int      @default(90) @map("expiry_days")
+  historyCount      Int      @default(5) @map("history_count")
+  maxLoginAttempts  Int      @default(5) @map("max_login_attempts")
+  lockoutDuration   Int      @default(30) @map("lockout_duration")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("tds_password_policies")
+}
+
+model PasswordHistory {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  password  String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("tds_password_histories")
+  @@index([userId])
+}
+
+model Post {
+  id          Int      @id @default(autoincrement())
+  code        String   @unique @db.VarChar(50)
+  name        String   @db.VarChar(50)
+  level       Int      @default(1)
+  sortOrder   Int      @default(0) @map("sort_order")
+  status      String   @default("active") @db.VarChar(20)
+  description String?  @db.VarChar(255)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  userPosts   UserPost[]
+
+  @@map("tds_posts")
+}
+
+model UserPost {
+  userId    Int      @map("user_id")
+  postId    Int      @map("post_id")
+  isPrimary Boolean  @default(true) @map("is_primary")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([userId, postId])
+  @@map("tds_user_posts")
+}
+
+model DictType {
+  id          Int      @id @default(autoincrement())
+  code        String   @unique @db.VarChar(50)
+  name        String   @db.VarChar(50)
+  description String?  @db.VarChar(255)
+  status      String   @default("active") @db.VarChar(20)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  dictData    DictData[]
+
+  @@map("tds_dict_types")
+}
+
+model DictData {
+  id        Int      @id @default(autoincrement())
+  dictId    Int      @map("dict_id")
+  label     String   @db.VarChar(50)
+  value     String   @db.VarChar(50)
+  sortOrder Int      @default(0) @map("sort_order")
+  status    String   @default("active") @db.VarChar(20)
+  remark    String?  @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  dictType  DictType @relation(fields: [dictId], references: [id], onDelete: Cascade)
+
+  @@map("tds_dict_data")
+  @@index([dictId])
+}
+
+model SysConfig {
+  id          Int      @id @default(autoincrement())
+  key         String   @unique @db.VarChar(100)
+  value       String   @db.Text
+  type        String   @default("string") @db.VarChar(20)
+  group       String   @default("system") @db.VarChar(50)
+  name        String   @db.VarChar(100)
+  description String?  @db.VarChar(255)
+  isBuiltIn   Boolean  @default(false) @map("is_built_in")
+  status      String   @default("active") @db.VarChar(20)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("tds_sys_configs")
+}
+
+model UserOAuth {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @map("user_id")
+  provider     String   @db.VarChar(20)
+  providerId   String   @map("provider_id") @db.VarChar(100)
+  unionId      String?  @map("union_id") @db.VarChar(100)
+  accessToken  String?  @map("access_token") @db.VarChar(500)
+  refreshToken String?  @map("refresh_token") @db.VarChar(500)
+  expiresAt    DateTime? @map("expires_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerId])
+  @@map("tds_user_oauths")
 }

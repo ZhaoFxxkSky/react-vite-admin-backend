@@ -14,7 +14,9 @@ export interface IUserRepository {
   getByEmail(email: string): Promise<UserEntity | null>;
   getByPhone(phone: string): Promise<UserEntity | null>;
   getByAccount(account: string): Promise<UserEntity | null>;
-  listByPage(params: ListUserByPageQuery): Promise<PaginatedResponse<UserEntity>>;
+  listByPage(
+    params: ListUserByPageQuery,
+  ): Promise<PaginatedResponse<UserEntity>>;
   save(entity: UserEntity): Promise<UserEntity>;
   updateById(id: number, data: Partial<UserEntity>): Promise<UserEntity>;
   removeById(id: number): Promise<void>;

@@ -21,7 +21,8 @@ export class FileService {
     this.logger.setContext(FileService.name);
     const storage = this.configService.get('storage');
     this.storageType = storage.type || 'local';
-    this.storage = this.storageType === 'minio' ? this.minioStorage : this.localStorage;
+    this.storage =
+      this.storageType === 'minio' ? this.minioStorage : this.localStorage;
   }
 
   @LogMethod()

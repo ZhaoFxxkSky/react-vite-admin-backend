@@ -191,30 +191,34 @@ export class ApiPermissionScannerService implements OnModuleInit {
 
       const controllerPath = getControllerPath(wrapper.metatype);
 
-      this.metadataScanner.scanFromPrototype(instance, prototype, (methodName) => {
-        const handler = prototype[methodName];
-        if (typeof handler !== 'function') return;
+      this.metadataScanner.scanFromPrototype(
+        instance,
+        prototype,
+        (methodName) => {
+          const handler = prototype[methodName];
+          if (typeof handler !== 'function') return;
 
-        const apiMeta: ApiPermissionMeta | undefined = Reflect.getMetadata(
-          API_PERMISSION_KEY,
-          handler,
-        );
-        if (!apiMeta) return;
+          const apiMeta: ApiPermissionMeta | undefined = Reflect.getMetadata(
+            API_PERMISSION_KEY,
+            handler,
+          );
+          if (!apiMeta) return;
 
-        const methodPath = getMethodPath(handler);
-        const methodType = getMethodType(handler);
-        const fullPath = normalizePath(controllerPath, methodPath);
+          const methodPath = getMethodPath(handler);
+          const methodType = getMethodType(handler);
+          const fullPath = normalizePath(controllerPath, methodPath);
 
-        items.push({
-          code: apiMeta.code,
-          name: apiMeta.name,
-          module: apiMeta.module,
-          category: apiMeta.category ?? null,
-          method: methodType,
-          path: fullPath,
-          description: apiMeta.description ?? null,
-        });
-      });
+          items.push({
+            code: apiMeta.code,
+            name: apiMeta.name,
+            module: apiMeta.module,
+            category: apiMeta.category ?? null,
+            method: methodType,
+            path: fullPath,
+            description: apiMeta.description ?? null,
+          });
+        },
+      );
     }
 
     return items;

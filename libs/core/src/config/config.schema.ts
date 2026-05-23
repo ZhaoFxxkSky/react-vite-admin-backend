@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 const dbSingleSchema = z.object({
   host: z.string().default('localhost'),
-  port: z.number().default(3306),
+  port: z.coerce.number().default(3306),
   user: z.string().default('root'),
   password: z.string().default('root'),
   database: z.string().default('data_space'),
@@ -10,7 +10,7 @@ const dbSingleSchema = z.object({
 
 export const configSchema = z.object({
   app: z.object({
-    port: z.number().default(3000),
+    port: z.coerce.number().default(3000),
     env: z.enum(['development', 'production', 'test']).default('development'),
   }),
 
@@ -22,9 +22,9 @@ export const configSchema = z.object({
 
   redis: z.object({
     host: z.string().default('localhost'),
-    port: z.number().default(6379),
+    port: z.coerce.number().default(6379),
     password: z.string().optional(),
-    db: z.number().default(0),
+    db: z.coerce.number().default(0),
   }),
 
   jwt: z.object({

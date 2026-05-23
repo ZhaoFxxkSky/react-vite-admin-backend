@@ -13,15 +13,15 @@ const padEndAnsi = (str: string, len: number) => {
 };
 
 /* ── 列宽常量 ──────────────────────────────────── */
-const W_TIME = 15;      // [HH:mm:ss.SSS]
-const W_LEVEL = 9;      // ● INFO
-const W_CONTEXT = 18;   // [Bootstrap]
+const W_TIME = 15; // [HH:mm:ss.SSS]
+const W_LEVEL = 9; // ● INFO
+const W_CONTEXT = 18; // [Bootstrap]
 
 /* ── 级别配置（图标 + 颜色）─────────────────────── */
 const LEVEL_CONFIG: Record<string, { icon: string; color: chalk.Chalk }> = {
   error: { icon: '✖', color: chalk.red },
-  warn:  { icon: '▲', color: chalk.yellow },
-  info:  { icon: '●', color: chalk.cyan },
+  warn: { icon: '▲', color: chalk.yellow },
+  info: { icon: '●', color: chalk.cyan },
   debug: { icon: '◆', color: chalk.gray },
   verbose: { icon: '◇', color: chalk.gray },
 };
@@ -53,7 +53,9 @@ const consoleFormat = combine(
     const timeStr = chalk.gray(padEndAnsi(`[${timestamp}]`, W_TIME));
 
     // 级别（图标 + 着色）
-    const levelStr = cfg.color(padEndAnsi(`${cfg.icon} ${level.toUpperCase()}`, W_LEVEL));
+    const levelStr = cfg.color(
+      padEndAnsi(`${cfg.icon} ${level.toUpperCase()}`, W_LEVEL),
+    );
 
     // 上下文（品红）
     const ctxStr = context

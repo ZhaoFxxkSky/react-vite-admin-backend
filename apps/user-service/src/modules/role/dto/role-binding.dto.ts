@@ -56,4 +56,6 @@ export const setRoleApiPermissionsSchema = extendApi(
   },
 );
 
-export type SetRoleApiPermissionsDto = z.infer<typeof setRoleApiPermissionsSchema>;
+export type SetRoleApiPermissionsDto = z.infer<
+  typeof setRoleApiPermissionsSchema
+>;

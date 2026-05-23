@@ -13,7 +13,9 @@ export interface IRoleRepository {
   getById(id: number): Promise<RoleEntity | null>;
   getByCode(code: string): Promise<RoleEntity | null>;
   list(params?: { type?: string; status?: string }): Promise<RoleEntity[]>;
-  listByPage(query: ListRoleByPageQuery): Promise<PaginatedResponse<RoleEntity>>;
+  listByPage(
+    query: ListRoleByPageQuery,
+  ): Promise<PaginatedResponse<RoleEntity>>;
   save(entity: RoleEntity): Promise<RoleEntity>;
   updateById(id: number, data: Partial<RoleEntity>): Promise<RoleEntity>;
   removeById(id: number): Promise<void>;

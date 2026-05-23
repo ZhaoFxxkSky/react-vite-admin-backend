@@ -24,7 +24,9 @@
       "@core/*": ["libs/core/src/*"],
       "@core": ["libs/core/src"],
       "@shared/*": ["libs/shared/src/*"],
-      "@shared": ["libs/shared/src"]
+      "@shared": ["libs/shared/src"],
+      "@app/user-platform/*": ["libs/user-platform/src/*"],
+      "@app/user-platform": ["libs/user-platform/src"]
     }
   },
   "include": ["apps/**/*", "libs/**/*", "test/**/*"],

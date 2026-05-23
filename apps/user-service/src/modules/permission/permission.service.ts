@@ -81,7 +81,7 @@ export class PermissionService {
       throw new BadRequestException(`Built-in permission cannot be deleted`);
     }
 
-    await this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx: any) => {
       await tx.rolePermission.deleteMany({ where: { permissionId: id } });
       await tx.permission.updateMany({
         where: { pid: id },
@@ -92,7 +92,7 @@ export class PermissionService {
     return { id };
   }
 
-  // ===================== 权限树查询 =====================
+  // ===================== 权限树查�?=====================
 
   async listTree() {
     const rows = await this.permRepo.listMenu();
@@ -102,8 +102,8 @@ export class PermissionService {
   // ===================== 用户权限查询 =====================
 
   /**
-   * 查询某个用户拥有的所有权限 code(去重)
-   * 链路: user_roles → roles → role_permissions → permissions
+   * 查询某个用户拥有的所有权�?code(去重)
+   * 链路: user_roles �?roles �?role_permissions �?permissions
    */
   async listCodesByUserId(userId: number): Promise<string[]> {
     if (!userId) return [];
@@ -129,9 +129,8 @@ export class PermissionService {
   }
 
   /**
-   * 查询某个用户可见的菜单(树形)
-   * 仅返回 status = 'active' 的权限节点
-   */
+   * 查询某个用户可见的菜�?树形)
+   * 仅返�?status = 'active' 的权限节�?   */
   async listMenuByUserId(userId: number) {
     if (!userId) return [];
 
@@ -171,3 +170,4 @@ export class PermissionService {
     return TreeUtil.buildTree(dedup, { parentKey: 'pid', sort: true });
   }
 }
+

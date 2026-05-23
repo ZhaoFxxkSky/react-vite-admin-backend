@@ -83,10 +83,7 @@ export class UserRepository implements IUserRepository {
     return created;
   }
 
-  async updateById(
-    id: number,
-    data: Partial<UserEntity>,
-  ): Promise<UserEntity> {
+  async updateById(id: number, data: Partial<UserEntity>): Promise<UserEntity> {
     const updateData: Record<string, unknown> = {};
     if (data.username !== undefined) updateData.username = data.username;
     if (data.email !== undefined) updateData.email = data.email;
@@ -106,8 +103,10 @@ export class UserRepository implements IUserRepository {
     if (data.status !== undefined) updateData.status = data.status;
     if (data.loginFailCount !== undefined)
       updateData.loginFailCount = data.loginFailCount;
-    if (data.lastLoginAt !== undefined) updateData.lastLoginAt = data.lastLoginAt;
-    if (data.lastLoginIp !== undefined) updateData.lastLoginIp = data.lastLoginIp;
+    if (data.lastLoginAt !== undefined)
+      updateData.lastLoginAt = data.lastLoginAt;
+    if (data.lastLoginIp !== undefined)
+      updateData.lastLoginIp = data.lastLoginIp;
     if (data.passwordChangedAt !== undefined)
       updateData.passwordChangedAt = data.passwordChangedAt;
 

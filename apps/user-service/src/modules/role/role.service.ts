@@ -116,7 +116,7 @@ export class RoleService {
       throw new BadRequestException('System role cannot be deleted');
     }
 
-    await this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx: any) => {
       await tx.userRole.deleteMany({ where: { roleId: id } });
       await tx.rolePermission.deleteMany({ where: { roleId: id } });
       await tx.role.delete({ where: { id } });
@@ -124,7 +124,7 @@ export class RoleService {
     return { id };
   }
 
-  // ===================== 角色 ↔ 权限 =====================
+  // ===================== 角色 �?权限 =====================
 
   async listPermissionsByRoleId(roleId: number) {
     const rows = await this.prisma.permission.findMany({
@@ -151,7 +151,7 @@ export class RoleService {
     const role = await this.roleRepo.getById(roleId);
     if (!role) throw new NotFoundException('Role not found');
 
-    return this.prisma.$transaction(async (tx) => {
+    return this.prisma.$transaction(async (tx: any) => {
       await tx.rolePermission.deleteMany({ where: { roleId } });
 
       if (permissionIds.length > 0) {
@@ -160,7 +160,7 @@ export class RoleService {
           where: { id: { in: dedup } },
           select: { id: true },
         });
-        const validIds = new Set(valid.map((p) => p.id));
+        const validIds = new Set(valid.map((p: any) => p.id));
         const insertable = dedup.filter((id) => validIds.has(id));
 
         if (insertable.length > 0) {
@@ -177,7 +177,7 @@ export class RoleService {
     });
   }
 
-  // ===================== 角色 ↔ 接口权限 =====================
+  // ===================== 角色 �?接口权限 =====================
 
   async listApiPermissionsByRoleId(roleId: number) {
     const rows = await this.prisma.apiPermission.findMany({
@@ -198,7 +198,7 @@ export class RoleService {
     const role = await this.roleRepo.getById(roleId);
     if (!role) throw new NotFoundException('Role not found');
 
-    await this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx: any) => {
       await tx.roleApiPermission.deleteMany({ where: { roleId } });
 
       if (apiPermissionIds.length > 0) {
@@ -207,7 +207,7 @@ export class RoleService {
           where: { id: { in: dedup } },
           select: { id: true },
         });
-        const validIds = new Set(valid.map((p) => p.id));
+        const validIds = new Set(valid.map((p: any) => p.id));
         const insertable = dedup.filter((id) => validIds.has(id));
 
         if (insertable.length > 0) {
@@ -222,7 +222,7 @@ export class RoleService {
     });
   }
 
-  // ===================== 角色 ↔ 用户 =====================
+  // ===================== 角色 �?用户 =====================
 
   async listUsersByRoleId(roleId: number) {
     const rows = await this.prisma.userRole.findMany({
@@ -291,3 +291,4 @@ export class RoleService {
     return { roleId, removed: dedup.length };
   }
 }
+

@@ -22,16 +22,24 @@ export const updateUserByIdSchema = extendApi(
       realName: extendApi(z.string().max(50).nullish(), {
         description: '真实姓名',
       }),
-      nickName: extendApi(z.string().max(50).nullish(), { description: '昵称' }),
-      avatar: extendApi(z.string().max(500).nullish(), { description: '头像URL' }),
+      nickName: extendApi(z.string().max(50).nullish(), {
+        description: '昵称',
+      }),
+      avatar: extendApi(z.string().max(500).nullish(), {
+        description: '头像URL',
+      }),
       gender: extendApi(z.enum(['male', 'female', 'unknown']).nullish(), {
         description: '性别',
       }),
       birthday: extendApi(z.coerce.date().nullish(), {
         description: '生日(YYYY-MM-DD)',
       }),
-      employeeNo: extendApi(z.string().max(50).nullish(), { description: '工号' }),
-      jobTitle: extendApi(z.string().max(50).nullish(), { description: '职位' }),
+      employeeNo: extendApi(z.string().max(50).nullish(), {
+        description: '工号',
+      }),
+      jobTitle: extendApi(z.string().max(50).nullish(), {
+        description: '职位',
+      }),
       organizationId: extendApi(z.coerce.number().int().nullish(), {
         description: '主组织 id',
       }),

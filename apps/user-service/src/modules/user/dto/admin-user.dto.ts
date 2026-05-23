@@ -22,10 +22,10 @@ export type ResetPasswordByIdDto = z.infer<typeof resetPasswordByIdSchema>;
 export const changeUserStatusSchema = extendApi(
   idSchema.merge(
     z.object({
-      status: extendApi(
-        z.enum(['active', 'inactive', 'banned', 'locked']),
-        { description: '目标状态', example: 'active' },
-      ),
+      status: extendApi(z.enum(['active', 'inactive', 'banned', 'locked']), {
+        description: '目标状态',
+        example: 'active',
+      }),
     }),
   ),
   {

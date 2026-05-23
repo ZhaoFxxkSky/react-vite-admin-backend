@@ -19,7 +19,10 @@ export const ACTION_ALIAS: Record<string, string> = {
   dispatch: 'assign',
 };
 
-export function parsePermissionCode(code: string): { resourceCode: string; action: string } {
+export function parsePermissionCode(code: string): {
+  resourceCode: string;
+  action: string;
+} {
   const segments = code.split(':');
   if (segments.length < 2) {
     return { resourceCode: code, action: 'view' };

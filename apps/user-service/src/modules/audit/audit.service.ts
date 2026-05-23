@@ -19,7 +19,7 @@ export class AuditService implements IAuditLogger {
           userAgent: event.userAgent ?? null,
           statusCode: event.statusCode ?? null,
           duration: event.duration ?? null,
-          metadata: event.metadata ?? undefined,
+          metadata: (event.metadata as any) ?? undefined,
         },
       });
     } catch {

@@ -8,10 +8,7 @@ import { PrismaService } from '@core';
 import { TreeUtil } from '@shared';
 import { OrganizationEntity } from './domain/entities/organization.entity';
 import { OrganizationRepository } from './infrastructure/repositories/organization.repository';
-import {
-  CreateOrganizationDto,
-  UpdateOrganizationDto,
-} from './dto';
+import { CreateOrganizationDto, UpdateOrganizationDto } from './dto';
 
 @Injectable()
 export class OrganizationService {
@@ -55,7 +52,9 @@ export class OrganizationService {
     if (data.parentId != null) {
       const parent = await this.orgRepo.getById(data.parentId);
       if (!parent) {
-        throw new NotFoundException(`Parent organization ${data.parentId} not found`);
+        throw new NotFoundException(
+          `Parent organization ${data.parentId} not found`,
+        );
       }
     }
 
@@ -139,7 +138,8 @@ export class OrganizationService {
 
   async listMembersByOrgId(orgId: number) {
     const existing = await this.orgRepo.getById(orgId);
-    if (!existing) throw new NotFoundException(`Organization ${orgId} not found`);
+    if (!existing)
+      throw new NotFoundException(`Organization ${orgId} not found`);
 
     const rows = await this.prisma.userOrganization.findMany({
       where: { organizationId: orgId },
@@ -169,7 +169,7 @@ export class OrganizationService {
   // ===================== 内部辅助 =====================
 
   /**
-   * 计算用户所有组织的并集(主组织 ∪ 关联组织)
+   * 计算用户所有组织的并集(主组�?�?关联组织)
    */
   async listOrgIdsByUserId(userId: number): Promise<number[]> {
     const rows = await this.prisma.userOrganization.findMany({
@@ -180,7 +180,7 @@ export class OrganizationService {
   }
 
   /**
-   * 列出某组织所有后代组织 id(含自身)
+   * 列出某组织所有后代组�?id(含自�?
    */
   async listDescendantIds(rootId: number): Promise<number[]> {
     const all = await this.orgRepo.listAll();
@@ -203,7 +203,7 @@ export class OrganizationService {
   }
 
   /**
-   * 判断 maybeChildId 是否是 ancestorId 的后代(用于防止环)
+   * 判断 maybeChildId 是否�?ancestorId 的后�?用于防止�?
    */
   private async isDescendant(
     maybeChildId: number,
@@ -222,8 +222,7 @@ export class OrganizationService {
   }
 
   /**
-   * 查询用户主组织 ID（从 UserOrganization 取 isPrimary=true）
-   */
+   * 查询用户主组�?ID（从 UserOrganization �?isPrimary=true�?   */
   async findPrimaryOrgIdByUserId(userId: number): Promise<number | null> {
     const row = await this.prisma.userOrganization.findFirst({
       where: { userId, isPrimary: true },
@@ -233,10 +232,9 @@ export class OrganizationService {
   }
 
   /**
-   * 设置用户的额外组织（仅操作 isPrimary=false 的行；主组织由 user.service 单独维护）
-   */
+   * 设置用户的额外组织（仅操�?isPrimary=false 的行；主组织�?user.service 单独维护�?   */
   async setExtraOrgsForUser(userId: number, orgIds: number[]) {
-    return this.prisma.$transaction(async (tx) => {
+    return this.prisma.$transaction(async (tx: any) => {
       await tx.userOrganization.deleteMany({
         where: { userId, isPrimary: false },
       });
@@ -248,7 +246,7 @@ export class OrganizationService {
         where: { id: { in: dedup } },
         select: { id: true },
       });
-      const validIds = new Set(existing.map((o) => o.id));
+      const validIds = new Set(existing.map((o: any) => o.id));
       const insertable = dedup.filter((id) => validIds.has(id));
 
       if (insertable.length > 0) {
@@ -263,3 +261,4 @@ export class OrganizationService {
     });
   }
 }
+

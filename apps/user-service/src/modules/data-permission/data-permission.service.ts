@@ -117,7 +117,7 @@ export class DataPermissionService {
   }
 
   async saveRoleScopes(roleId: number, resources: SaveRoleResourceItem[]) {
-    await this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx: any) => {
       // 全量替换：先清空该角色的现有配置
       await tx.roleDataPermissionScope.deleteMany({ where: { roleId } });
       await tx.roleResourceConfig.deleteMany({ where: { roleId } });

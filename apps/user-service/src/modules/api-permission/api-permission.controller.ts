@@ -6,12 +6,7 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiBearerAuth,
-  ApiBody,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { generateSchema } from '@anatine/zod-openapi';
 import {
   ApiPermission,
@@ -21,7 +16,12 @@ import {
 } from '@core';
 import { ApiPermissionScannerService } from './api-permission-scanner.service';
 import { ApiPermissionService } from './api-permission.service';
-import { toggleSchema, batchToggleSchema, ToggleDto, BatchToggleDto } from './dto';
+import {
+  toggleSchema,
+  batchToggleSchema,
+  ToggleDto,
+  BatchToggleDto,
+} from './dto';
 
 @ApiTags('ApiPermissions')
 @ApiBearerAuth()
@@ -50,7 +50,10 @@ export class ApiPermissionController {
     name: '手动同步',
     module: '接口权限',
   })
-  @ApiOperation({ summary: 'Trigger scan sync', description: '手动触发扫描同步' })
+  @ApiOperation({
+    summary: 'Trigger scan sync',
+    description: '手动触发扫描同步',
+  })
   async scan() {
     return this.scannerService.scanAndSync();
   }
@@ -61,7 +64,10 @@ export class ApiPermissionController {
     name: '接口权限树',
     module: '接口权限',
   })
-  @ApiOperation({ summary: 'List API permission tree', description: '查询接口权限树形分组' })
+  @ApiOperation({
+    summary: 'List API permission tree',
+    description: '查询接口权限树形分组',
+  })
   async tree() {
     return this.apiPermissionService.tree();
   }
@@ -72,7 +78,10 @@ export class ApiPermissionController {
     name: '启停接口权限',
     module: '接口权限',
   })
-  @ApiOperation({ summary: 'Toggle API permission', description: '启停单个接口权限' })
+  @ApiOperation({
+    summary: 'Toggle API permission',
+    description: '启停单个接口权限',
+  })
   @ApiBody({ schema: generateSchema(toggleSchema, false, '3.0') as any })
   @UsePipes(new ZodValidationPipe(toggleSchema))
   async toggle(@Body() dto: ToggleDto) {
@@ -85,7 +94,10 @@ export class ApiPermissionController {
     name: '批量启停接口权限',
     module: '接口权限',
   })
-  @ApiOperation({ summary: 'Batch toggle API permissions', description: '批量启停接口权限' })
+  @ApiOperation({
+    summary: 'Batch toggle API permissions',
+    description: '批量启停接口权限',
+  })
   @ApiBody({ schema: generateSchema(batchToggleSchema, false, '3.0') as any })
   @UsePipes(new ZodValidationPipe(batchToggleSchema))
   async batchToggle(@Body() dto: BatchToggleDto) {
@@ -98,7 +110,10 @@ export class ApiPermissionController {
     name: '清理失效接口权限',
     module: '接口权限',
   })
-  @ApiOperation({ summary: 'Clean disabled API permissions', description: '清理已禁用的接口权限（物理删除）' })
+  @ApiOperation({
+    summary: 'Clean disabled API permissions',
+    description: '清理已禁用的接口权限（物理删除）',
+  })
   async cleanDisabled() {
     return this.apiPermissionService.cleanDisabled();
   }

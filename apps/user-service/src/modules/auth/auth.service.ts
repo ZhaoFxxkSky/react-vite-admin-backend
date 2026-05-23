@@ -22,6 +22,9 @@ import { PermissionService } from '../permission/permission.service';
 import { SessionService } from '../session/session.service';
 import { LoginDto, LoginByEmailDto, LoginByPhoneDto, RegisterDto } from './dto';
 import { UAParser } from 'ua-parser-js';
+import { CaptchaService } from '../captcha/captcha.service';
+import { LoginLogService } from '../login-log/login-log.service';
+import { PasswordPolicyService } from '../password-policy/password-policy.service';
 
 @Injectable()
 export class AuthService {
@@ -34,6 +37,9 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly permissionService: PermissionService,
     private readonly sessionService: SessionService,
+    private readonly captchaService: CaptchaService,
+    private readonly loginLogService: LoginLogService,
+    private readonly passwordPolicyService: PasswordPolicyService,
     private readonly logger: AppLogger,
   ) {
     this.logger.setContext(AuthService.name);
@@ -83,6 +89,14 @@ export class AuthService {
 
   @LogMethod()
   async login(dto: LoginDto, ip: string, userAgent: string) {
+    // 验证码校验
+    if (dto.captchaKey && dto.captchaCode) {
+      const valid = await this.captchaService.verify(dto.captchaKey, dto.captchaCode);
+      if (!valid) {
+        throw new UnauthorizedException('验证码错误或已过期');
+      }
+    }
+    
     const user = await this.userRepository.getByUsername(dto.username);
     return this.authenticate(user, dto.password, dto.username, ip, userAgent);
   }
@@ -167,27 +181,73 @@ export class AuthService {
     userAgent = '',
   ) {
     if (!user) {
+      await this.loginLogService.create({
+        username: accountLabel,
+        ip,
+        userAgent,
+        status: 'fail',
+        message: '用户不存在',
+      });
       this.logger.warn(`Login failed - user not found: ${accountLabel}`);
       throw new UnauthorizedException('Invalid credentials');
     }
 
     if (user.status === 'locked') {
+      await this.loginLogService.create({
+        userId: user.id,
+        username: user.username,
+        ip,
+        userAgent,
+        status: 'fail',
+        message: '账号已锁定',
+      });
       this.logger.warn(`Login failed - account locked: ${accountLabel}`);
       throw new UnauthorizedException('Account is locked');
     }
     if (user.status === 'banned') {
+      await this.loginLogService.create({
+        userId: user.id,
+        username: user.username,
+        ip,
+        userAgent,
+        status: 'fail',
+        message: '账号已禁用',
+      });
       this.logger.warn(`Login failed - account banned: ${accountLabel}`);
       throw new UnauthorizedException('Account is banned');
     }
     if (user.status === 'inactive') {
+      await this.loginLogService.create({
+        userId: user.id,
+        username: user.username,
+        ip,
+        userAgent,
+        status: 'fail',
+        message: '账号未激活',
+      });
       this.logger.warn(`Login failed - account inactive: ${accountLabel}`);
       throw new UnauthorizedException('Account is inactive');
     }
 
+    // 检查密码是否过期
+    const isExpired = await this.passwordPolicyService.isPasswordExpired(user.id);
+    if (isExpired) {
+      await this.loginLogService.create({
+        userId: user.id,
+        username: user.username,
+        ip,
+        userAgent,
+        status: 'fail',
+        message: '密码已过期',
+      });
+      throw new UnauthorizedException('密码已过期，请修改密码');
+    }
+
     const valid = await comparePassword(password, user.password);
     if (!valid) {
+      const policy = await this.passwordPolicyService.getPolicy();
       const newFailCount = (user.loginFailCount ?? 0) + 1;
-      const shouldLock = newFailCount >= this.MAX_LOGIN_FAILS;
+      const shouldLock = newFailCount >= policy.maxLoginAttempts;
 
       await this.prisma.user.update({
         where: { id: user.id },
@@ -195,6 +255,15 @@ export class AuthService {
           loginFailCount: newFailCount,
           ...(shouldLock ? { status: 'locked' as const } : {}),
         },
+      });
+
+      await this.loginLogService.create({
+        userId: user.id,
+        username: user.username,
+        ip,
+        userAgent,
+        status: 'fail',
+        message: `密码错误（第${newFailCount}次）`,
       });
 
       this.logger.warn(
@@ -214,7 +283,15 @@ export class AuthService {
 
     await this.prisma.user.update({
       where: { id: user.id },
-      data: { lastLoginAt: new Date(), loginFailCount: 0 },
+      data: { lastLoginAt: new Date(), loginFailCount: 0, lastLoginIp: ip },
+    });
+
+    await this.loginLogService.create({
+      userId: user.id,
+      username: user.username,
+      ip,
+      userAgent,
+      status: 'success',
     });
 
     this.logger.info(`Login success: id=${user.id}, username=${user.username}`);

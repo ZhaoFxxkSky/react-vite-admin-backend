@@ -25,7 +25,9 @@ export class SchedulerService {
       async () => {
         this.logger.info('Running cleanup task...');
         const cleaned = await this.cleanupExpiredSessions();
-        this.logger.info(`Cleanup task finished, cleaned ${cleaned} expired sessions`);
+        this.logger.info(
+          `Cleanup task finished, cleaned ${cleaned} expired sessions`,
+        );
         return true;
       },
       300,
@@ -46,7 +48,13 @@ export class SchedulerService {
     const now = Math.floor(Date.now() / 1000);
 
     do {
-      const reply = await redis.scan(cursor, 'MATCH', `${SESSION_METADATA_PREFIX}*`, 'COUNT', 100);
+      const reply = await redis.scan(
+        cursor,
+        'MATCH',
+        `${SESSION_METADATA_PREFIX}*`,
+        'COUNT',
+        100,
+      );
       cursor = reply[0];
       const keys = reply[1];
 

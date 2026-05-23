@@ -8,6 +8,9 @@ import { UserModule } from '../user/user.module';
 import { ApiPermissionModule } from '../api-permission/api-permission.module';
 import { PermissionModule } from '../permission/permission.module';
 import { SessionModule } from '../session/session.module';
+import { CaptchaModule } from '../captcha/captcha.module';
+import { LoginLogModule } from '../login-log/login-log.module';
+import { PasswordPolicyModule } from '../password-policy/password-policy.module';
 
 @Module({
   imports: [
@@ -17,6 +20,9 @@ import { SessionModule } from '../session/session.module';
     PermissionModule,
     ApiPermissionModule,
     SessionModule,
+    CaptchaModule,
+    LoginLogModule,
+    PasswordPolicyModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],

@@ -30,7 +30,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     // JWT errors → 401
     if (exception instanceof Error) {
-      const jwtErrors = ['TokenExpiredError', 'JsonWebTokenError', 'NotBeforeError'];
+      const jwtErrors = [
+        'TokenExpiredError',
+        'JsonWebTokenError',
+        'NotBeforeError',
+      ];
       if (jwtErrors.includes(exception.constructor.name)) {
         status = HttpStatus.UNAUTHORIZED;
         exceptionResponse = { message: exception.message };

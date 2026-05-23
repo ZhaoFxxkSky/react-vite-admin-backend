@@ -28,7 +28,7 @@ export class UserService {
     this.logger.setContext(UserService.name);
   }
 
-  // ===================== 管理员接口 =====================
+  // ===================== 管理员接�?=====================
 
   @LogMethod()
   async listByPage(dto: ListUserByPageDto) {
@@ -150,9 +150,7 @@ export class UserService {
         where: { id: organizationId },
       });
       if (!org) {
-        throw new NotFoundException(
-          `Organization ${organizationId} not found`,
-        );
+        throw new NotFoundException(`Organization ${organizationId} not found`);
       }
     }
 
@@ -161,9 +159,7 @@ export class UserService {
       patch.isSuperAdmin !== existing.isSuperAdmin &&
       !currentUserIsSuperAdmin
     ) {
-      throw new ForbiddenException(
-        'Only super admins can change isSuperAdmin',
-      );
+      throw new ForbiddenException('Only super admins can change isSuperAdmin');
     }
 
     const updated = await this.userRepository.updateById(id, patch as any);
@@ -199,7 +195,7 @@ export class UserService {
       throw new BadRequestException('Cannot delete a super admin');
     }
 
-    await this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx: any) => {
       await tx.userRole.deleteMany({ where: { userId: id } });
       await tx.userOrganization.deleteMany({ where: { userId: id } });
       await tx.user.delete({ where: { id } });
@@ -246,14 +242,14 @@ export class UserService {
     return { id };
   }
 
-  // ===================== 用户 ↔ 角色 =====================
+  // ===================== 用户 �?角色 =====================
 
   @LogMethod()
   async setRolesByUserId(userId: number, roleIds: number[]) {
     const existing = await this.userRepository.getById(userId);
     if (!existing) throw new NotFoundException('User not found');
 
-    return this.prisma.$transaction(async (tx) => {
+    return this.prisma.$transaction(async (tx: any) => {
       await tx.userRole.deleteMany({ where: { userId } });
 
       if (roleIds.length > 0) {
@@ -262,7 +258,7 @@ export class UserService {
           where: { id: { in: dedup } },
           select: { id: true },
         });
-        const validIds = new Set(validRoles.map((r) => r.id));
+        const validIds = new Set(validRoles.map((r: any) => r.id));
         const insertable = dedup.filter((id) => validIds.has(id));
 
         if (insertable.length > 0) {
@@ -386,4 +382,65 @@ export class UserService {
 
     return { message: 'Password changed successfully' };
   }
+
+  // ===================== Excel 导入导出 =====================
+
+  async exportUsers(query: any) {
+    const users = await this.prisma.user.findMany({
+      where: query.status ? { status: query.status } : {},
+      select: {
+        id: true,
+        username: true,
+        realName: true,
+        email: true,
+        phone: true,
+        status: true,
+        createdAt: true,
+      },
+    });
+
+    return users.map(user => ({
+      id: user.id,
+      username: user.username,
+      realName: user.realName,
+      email: user.email,
+      phone: user.phone,
+      status: user.status,
+      createdAt: user.createdAt,
+    }));
+  }
+
+  async importUsers(data: any[]) {
+    const results = {
+      success: 0,
+      fail: 0,
+      errors: [] as string[],
+    };
+
+    for (const row of data) {
+      try {
+        await this.save({
+          username: row.username,
+          realName: row.realName,
+          email: row.email,
+          phone: row.phone,
+          password: row.password || '123456',
+        } as CreateUserDto, true);
+        results.success++;
+      } catch (error: any) {
+        results.fail++;
+        results.errors.push(`${row.username}: ${error.message}`);
+      }
+    }
+
+    return results;
+  }
+
+  async generateImportTemplate() {
+    return [
+      { username: 'zhangsan', realName: '张三', email: 'zhangsan@example.com', phone: '13800138001' },
+      { username: 'lisi', realName: '李四', email: 'lisi@example.com', phone: '13800138002' },
+    ];
+  }
 }
+

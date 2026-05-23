@@ -7,6 +7,7 @@ import {
   HealthModule,
   ExceptionModule,
 } from '@core';
+import { UserPlatformModule } from '@app/user-platform';
 import { AuditModule } from './modules/audit/audit.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
@@ -17,6 +18,15 @@ import { OrganizationModule } from './modules/organization/organization.module';
 import { DataPermissionModule } from './modules/data-permission/data-permission.module';
 import { SessionModule } from './modules/session/session.module';
 import { ApiPermissionModule } from './modules/api-permission/api-permission.module';
+import { CaptchaModule } from './modules/captcha/captcha.module';
+import { LoginLogModule } from './modules/login-log/login-log.module';
+import { PasswordPolicyModule } from './modules/password-policy/password-policy.module';
+import { PostModule } from './modules/post/post.module';
+import { DictModule } from './modules/dict/dict.module';
+import { ConfigModule as SysConfigModule } from './modules/config/config.module';
+import { ExcelModule } from './modules/excel/excel.module';
+import { OAuthModule } from './modules/oauth/oauth.module';
+import { ThrottlerModule } from './modules/throttler/throttler.module';
 
 @Module({
   imports: [
@@ -24,6 +34,7 @@ import { ApiPermissionModule } from './modules/api-permission/api-permission.mod
     LoggerModule,
     PrismaModule,
     CacheModule,
+    UserPlatformModule,
     AuditModule,
     HealthModule,
     ExceptionModule,
@@ -36,6 +47,15 @@ import { ApiPermissionModule } from './modules/api-permission/api-permission.mod
     DataPermissionModule,
     SessionModule,
     ApiPermissionModule,
+    CaptchaModule,
+    LoginLogModule,
+    PasswordPolicyModule,
+    PostModule,
+    DictModule,
+    SysConfigModule,
+    ExcelModule,
+    OAuthModule,
+    ThrottlerModule,
   ],
 })
 export class AppModule {}

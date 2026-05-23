@@ -36,7 +36,7 @@ export class PermissionRepository implements IPermissionRepository {
       },
     });
 
-    return rows.map(PermissionMapper.toDomain)
+    return rows.map(PermissionMapper.toDomain);
   }
 
   async listByPage(

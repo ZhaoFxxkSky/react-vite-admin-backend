@@ -1,7 +1,7 @@
 database:
   primary:
     host: "${DB_HOST}"
-    port: 3006
+    port: "${DB_PORT}"
     user: "${DB_USER}"
     password: "${DB_PASSWORD}"
     database: "${USER_DB_NAME}"

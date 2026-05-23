@@ -4,40 +4,34 @@ import {
   GlobalExceptionFilter,
   TransformInterceptor,
   LoggingInterceptor,
+  RequestIdMiddleware,
+} from '@core';
+import {
   JwtGuard,
   PermissionsGuard,
-  RequestIdMiddleware,
   DataScopeInterceptor,
-  RedisService,
-} from '@core';
-import { Reflector } from '@nestjs/core';
+} from '@app/user-platform';
 import { Request, Response, NextFunction } from 'express';
 import { SessionActivityInterceptor } from './interceptors/session-activity.interceptor';
-import { SessionService } from './modules/session/session.service';
+import { CustomThrottlerGuard } from './modules/throttler/guards/custom-throttler.guard';
 
 export function bootstrapApp(app: NestExpressApplication) {
   app.use((req: Request, res: Response, next: NextFunction) =>
     new RequestIdMiddleware().use(req, res, next),
   );
 
-  const reflector = app.get(Reflector);
-  const redisService = app.get(RedisService);
-  app.useGlobalGuards(
-    new JwtGuard(reflector, redisService),
-    new PermissionsGuard(reflector),
-  );
+  app.useGlobalGuards(app.get(JwtGuard), app.get(PermissionsGuard), app.get(CustomThrottlerGuard));
 
   const exceptionFilter = app.get(GlobalExceptionFilter);
   app.useGlobalFilters(exceptionFilter);
 
   const loggingInterceptor = app.get(LoggingInterceptor);
   const dataScopeInterceptor = app.get(DataScopeInterceptor);
-  const sessionService = app.get(SessionService);
   app.useGlobalInterceptors(
-    new TransformInterceptor(),
+    app.get(TransformInterceptor),
     loggingInterceptor,
     dataScopeInterceptor,
-    new SessionActivityInterceptor(sessionService),
+    app.get(SessionActivityInterceptor),
   );
 
   app.enableCors({

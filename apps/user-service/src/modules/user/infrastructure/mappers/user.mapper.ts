@@ -26,9 +26,7 @@ export class UserMapper {
     });
   }
 
-  static toPersistence(
-    entity: UserEntity,
-  ): any {
+  static toPersistence(entity: UserEntity): any {
     return {
       username: entity.username,
       email: entity.email,

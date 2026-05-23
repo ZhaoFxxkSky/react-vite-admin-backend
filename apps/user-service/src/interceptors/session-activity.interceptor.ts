@@ -11,10 +11,7 @@ import { SessionService } from '../modules/session/session.service';
 export class SessionActivityInterceptor implements NestInterceptor {
   constructor(private readonly sessionService: SessionService) {}
 
-  intercept(
-    context: ExecutionContext,
-    next: CallHandler,
-  ): Observable<unknown> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const request = context.switchToHttp().getRequest();
     const jti = request.user?.jti;
 

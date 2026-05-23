@@ -11,6 +11,14 @@ export const loginSchema = extendApi(
       description: '密码',
       example: 'Secure123!',
     }),
+    captchaKey: extendApi(z.string().optional(), {
+      description: '验证码key',
+      example: 'captcha:123456:abc123',
+    }),
+    captchaCode: extendApi(z.string().optional(), {
+      description: '验证码',
+      example: 'a1b2',
+    }),
   }),
   { title: 'LoginDto', description: '登录请求参数' },
 );
