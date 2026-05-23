@@ -14,6 +14,7 @@ import {
 import { Request, Response, NextFunction } from 'express';
 import { SessionActivityInterceptor } from './interceptors/session-activity.interceptor';
 import { CustomThrottlerGuard } from './modules/throttler/guards/custom-throttler.guard';
+import { AuditLogInterceptor } from './modules/audit-log/audit-log.interceptor';
 
 export function bootstrapApp(app: NestExpressApplication) {
   app.use((req: Request, res: Response, next: NextFunction) =>
@@ -32,6 +33,7 @@ export function bootstrapApp(app: NestExpressApplication) {
     loggingInterceptor,
     dataScopeInterceptor,
     app.get(SessionActivityInterceptor),
+    app.get(AuditLogInterceptor),
   );
 
   app.enableCors({

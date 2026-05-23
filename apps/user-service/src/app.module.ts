@@ -27,6 +27,11 @@ import { ConfigModule as SysConfigModule } from './modules/config/config.module'
 import { ExcelModule } from './modules/excel/excel.module';
 import { OAuthModule } from './modules/oauth/oauth.module';
 import { ThrottlerModule } from './modules/throttler/throttler.module';
+import { ProfileModule } from './modules/profile/profile.module';
+import { AuditLogModule } from './modules/audit-log/audit-log.module';
+import { OnlineModule } from './modules/online/online.module';
+import { NoticeModule } from './modules/notice/notice.module';
+import { SchedulerModule } from './modules/scheduler/scheduler.module';
 
 @Module({
   imports: [
@@ -56,6 +61,11 @@ import { ThrottlerModule } from './modules/throttler/throttler.module';
     ExcelModule,
     OAuthModule,
     ThrottlerModule,
+    ProfileModule,
+    AuditLogModule,
+    OnlineModule,
+    NoticeModule,
+    SchedulerModule,
   ],
 })
 export class AppModule {}
