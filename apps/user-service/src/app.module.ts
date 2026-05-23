@@ -33,6 +33,8 @@ import { OnlineModule } from './modules/online/online.module';
 import { NoticeModule } from './modules/notice/notice.module';
 import { SchedulerModule } from './modules/scheduler/scheduler.module';
 import { MonitorModule } from './modules/monitor/monitor.module';
+import { MessageModule } from './modules/message/message.module';
+import { SettingsModule } from './modules/settings/settings.module';
 
 @Module({
   imports: [
@@ -68,6 +70,8 @@ import { MonitorModule } from './modules/monitor/monitor.module';
     NoticeModule,
     SchedulerModule,
     MonitorModule,
+    MessageModule,
+    SettingsModule,
   ],
 })
 export class AppModule {}

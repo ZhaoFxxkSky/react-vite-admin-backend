@@ -7,6 +7,7 @@ import {
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { AuditLogService } from '../audit-log/audit-log.service';
+import { AuditAlertService } from './audit-alert.service';
 import { Request } from 'express';
 
 const SENSITIVE_FIELDS = ['password', 'token', 'secret', 'authorization', 'creditCard'];
@@ -29,7 +30,10 @@ function maskSensitiveData(data: any): any {
 
 @Injectable()
 export class AuditLogInterceptor implements NestInterceptor {
-  constructor(private readonly auditLogService: AuditLogService) {}
+  constructor(
+    private readonly auditLogService: AuditLogService,
+    private readonly auditAlertService: AuditAlertService,
+  ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest<Request>();
@@ -51,6 +55,7 @@ export class AuditLogInterceptor implements NestInterceptor {
 
     // 提取模块名
     const module = this.extractModule(path);
+    const isSensitive = this.isSensitive(path, method);
 
     return next.handle().pipe(
       tap(async (response) => {
@@ -70,7 +75,19 @@ export class AuditLogInterceptor implements NestInterceptor {
           userAgent,
           statusCode,
           duration,
-          isSensitive: this.isSensitive(path, method),
+          isSensitive,
+        });
+
+        // 触发告警规则
+        await this.auditAlertService.evaluate({
+          userId,
+          username,
+          action: method,
+          module,
+          path,
+          statusCode,
+          isSensitive,
+          ip,
         });
       }),
     );

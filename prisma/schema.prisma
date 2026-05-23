@@ -431,3 +431,19 @@ model NoticeRead {
   @@map("tds_notice_reads")
   @@index([userId])
 }
+
+model Message {
+  id          Int      @id @default(autoincrement())
+  senderId    Int?     @map("sender_id")
+  receiverId  Int      @map("receiver_id")
+  type        String   @default("system") @db.VarChar(20)
+  title       String   @db.VarChar(100)
+  content     String   @db.Text
+  isRead      Boolean  @default(false) @map("is_read")
+  readAt      DateTime? @map("read_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("tds_messages")
+  @@index([receiverId, isRead])
+  @@index([createdAt])
+}
