@@ -67,9 +67,74 @@ export class NoticeService {
   }
 
   // 用户端：获取有效公告
-  async getActiveNotices() {
+  async getActiveNotices(userId: number, roleCodes: string[]) {
     const now = new Date();
-    return this.prisma.notice.findMany({
+    const notices = await this.prisma.notice.findMany({
+      where: {
+        status: 'published',
+        startAt: { lte: now },
+        OR: [
+          { endAt: null },
+          { endAt: { gte: now } },
+        ],
+        OR: [
+          { targetRoles: { isEmpty: true } },
+          { targetRoles: { hasSome: roleCodes } },
+        ],
+      },
+      orderBy: [
+        { isTop: 'desc' },
+        { createdAt: 'desc' },
+      ],
+    });
+
+    // 查询已读状态
+    const readRecords = await this.prisma.noticeRead.findMany({
+      where: { userId },
+      select: { noticeId: true },
+    });
+    const readNoticeIds = new Set(readRecords.map((r) => r.noticeId));
+
+    return notices.map((notice) => ({
+      ...notice,
+      isRead: readNoticeIds.has(notice.id),
+    }));
+  }
+
+  // 获取未读公告数量
+  async getUnreadCount(userId: number, roleCodes: string[]) {
+    const notices = await this.getActiveNotices(userId, roleCodes);
+    return notices.filter((n) => !n.isRead).length;
+  }
+
+  // 获取弹窗公告（未读的弹窗公告）
+  async getPopupNotices(userId: number, roleCodes: string[]) {
+    const notices = await this.getActiveNotices(userId, roleCodes);
+    return notices.filter((n) => n.isPopup && !n.isRead);
+  }
+
+  // 标记已读
+  async markAsRead(noticeId: number, userId: number) {
+    await this.prisma.noticeRead.upsert({
+      where: {
+        noticeId_userId: {
+          noticeId,
+          userId,
+        },
+      },
+      update: {},
+      create: {
+        noticeId,
+        userId,
+      },
+    });
+    return { success: true };
+  }
+
+  // 标记所有已读
+  async markAllAsRead(userId: number) {
+    const now = new Date();
+    const notices = await this.prisma.notice.findMany({
       where: {
         status: 'published',
         startAt: { lte: now },
@@ -78,10 +143,25 @@ export class NoticeService {
           { endAt: { gte: now } },
         ],
       },
-      orderBy: [
-        { isTop: 'desc' },
-        { createdAt: 'desc' },
-      ],
+      select: { id: true },
     });
+
+    for (const notice of notices) {
+      await this.prisma.noticeRead.upsert({
+        where: {
+          noticeId_userId: {
+            noticeId: notice.id,
+            userId,
+          },
+        },
+        update: {},
+        create: {
+          noticeId: notice.id,
+          userId,
+        },
+      });
+    }
+
+    return { success: true, count: notices.length };
   }
 }

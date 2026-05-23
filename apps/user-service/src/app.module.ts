@@ -32,6 +32,7 @@ import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { OnlineModule } from './modules/online/online.module';
 import { NoticeModule } from './modules/notice/notice.module';
 import { SchedulerModule } from './modules/scheduler/scheduler.module';
+import { MonitorModule } from './modules/monitor/monitor.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { SchedulerModule } from './modules/scheduler/scheduler.module';
     OnlineModule,
     NoticeModule,
     SchedulerModule,
+    MonitorModule,
   ],
 })
 export class AppModule {}

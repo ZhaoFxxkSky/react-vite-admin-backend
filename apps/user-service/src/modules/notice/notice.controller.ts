@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, UsePipes } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, UsePipes, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ZodValidationPipe, JwtAuthGuard, CurrentUser, AuthenticatedUser } from '@app/user-platform';
 import { NoticeService } from './notice.service';
@@ -19,7 +19,7 @@ export class NoticeAdminController {
 
   @Get()
   @UsePipes(new ZodValidationPipe(listNoticeSchema))
-  async list(@Body() dto: ListNoticeDto) {
+  async list(@Query() dto: ListNoticeDto) {
     return this.noticeService.list(dto);
   }
 
@@ -47,7 +47,28 @@ export class NoticeController {
   constructor(private readonly noticeService: NoticeService) {}
 
   @Get()
-  async getActiveNotices() {
-    return this.noticeService.getActiveNotices();
+  async getActiveNotices(@CurrentUser() user: AuthenticatedUser) {
+    // 简化处理：直接传入空角色列表，或从 user 中获取
+    return this.noticeService.getActiveNotices(user.id, []);
+  }
+
+  @Get('unread-count')
+  async getUnreadCount(@CurrentUser() user: AuthenticatedUser) {
+    return { count: await this.noticeService.getUnreadCount(user.id, []) };
+  }
+
+  @Get('popup')
+  async getPopupNotices(@CurrentUser() user: AuthenticatedUser) {
+    return this.noticeService.getPopupNotices(user.id, []);
+  }
+
+  @Post(':id/read')
+  async markAsRead(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.noticeService.markAsRead(Number(id), user.id);
+  }
+
+  @Post('read-all')
+  async markAllAsRead(@CurrentUser() user: AuthenticatedUser) {
+    return this.noticeService.markAllAsRead(user.id);
   }
 }
