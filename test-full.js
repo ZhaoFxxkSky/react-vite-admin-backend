@@ -229,6 +229,86 @@ async function runTests() {
     if (!Array.isArray(res.data.data)) throw new Error('未返回任务列表');
   });
 
+  // ========== 消息中心模块 ==========
+  console.log(colors.blue('\n=== 消息中心模块 ==='));
+
+  let messageId = null;
+
+  await test('发送消息', async () => {
+    const res = await axios.post(`${BASE_URL}/messages/send`, {
+      receiverId: 1,
+      title: '测试消息',
+      content: '这是一条测试消息',
+      type: 'user',
+    }, { headers });
+    messageId = res.data.data.id;
+    if (!messageId) throw new Error('发送失败');
+  });
+
+  await test('获取消息列表', async () => {
+    const res = await axios.get(`${BASE_URL}/messages?pageSize=10`, { headers });
+    if (!res.data.data.list) throw new Error('未返回列表');
+  });
+
+  await test('获取未读消息数', async () => {
+    const res = await axios.get(`${BASE_URL}/messages/unread-count`, { headers });
+    if (typeof res.data.data.count !== 'number') throw new Error('未返回数量');
+  });
+
+  await test('标记消息已读', async () => {
+    if (!messageId) throw new Error('没有消息ID');
+    const res = await axios.put(`${BASE_URL}/messages/${messageId}/read`, {}, { headers });
+    if (!res.data.data.isRead) throw new Error('标记失败');
+  });
+
+  await test('标记所有消息已读', async () => {
+    const res = await axios.put(`${BASE_URL}/messages/read-all`, {}, { headers });
+    if (typeof res.data.data.count !== 'number') throw new Error('标记失败');
+  });
+
+  await test('删除消息', async () => {
+    if (!messageId) throw new Error('没有消息ID');
+    const res = await axios.delete(`${BASE_URL}/messages/${messageId}`, { headers });
+    if (res.data.code !== 200) throw new Error('删除失败');
+  });
+
+  // ========== 系统设置模块 ==========
+  console.log(colors.blue('\n=== 系统设置模块 ==='));
+
+  await test('获取邮件配置', async () => {
+    const res = await axios.get(`${BASE_URL}/settings/email`, { headers });
+    if (res.data.code !== 200) throw new Error('获取失败');
+  });
+
+  await test('设置邮件配置', async () => {
+    const res = await axios.put(`${BASE_URL}/settings/email`, {
+      smtpHost: 'smtp.example.com',
+      smtpPort: 587,
+      smtpUser: 'test@example.com',
+      smtpPass: 'password',
+      fromName: 'System',
+      fromEmail: 'noreply@example.com',
+      enabled: true,
+    }, { headers });
+    if (res.data.code !== 200) throw new Error('设置失败');
+  });
+
+  await test('获取安全配置', async () => {
+    const res = await axios.get(`${BASE_URL}/settings/security`, { headers });
+    if (typeof res.data.data.maxLoginAttempts !== 'number') throw new Error('获取失败');
+  });
+
+  await test('设置安全配置', async () => {
+    const res = await axios.put(`${BASE_URL}/settings/security`, {
+      maxLoginAttempts: 5,
+      lockoutDuration: 30,
+      passwordExpiryDays: 90,
+      sessionTimeout: 60,
+      requireCaptcha: true,
+    }, { headers });
+    if (res.data.code !== 200) throw new Error('设置失败');
+  });
+
   // ========== 测试结果 ==========
   console.log(colors.blue('\n==================================='));
   console.log(colors.blue('   测试结果'));

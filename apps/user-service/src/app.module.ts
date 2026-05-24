@@ -35,6 +35,8 @@ import { SchedulerModule } from './modules/scheduler/scheduler.module';
 import { MonitorModule } from './modules/monitor/monitor.module';
 import { MessageModule } from './modules/message/message.module';
 import { SettingsModule } from './modules/settings/settings.module';
+import { ApiKeyModule } from './modules/api-key/api-key.module';
+import { WebhookModule } from './modules/webhook/webhook.module';
 
 @Module({
   imports: [
@@ -72,6 +74,8 @@ import { SettingsModule } from './modules/settings/settings.module';
     MonitorModule,
     MessageModule,
     SettingsModule,
+    ApiKeyModule,
+    WebhookModule,
   ],
 })
 export class AppModule {}
