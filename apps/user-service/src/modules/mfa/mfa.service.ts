@@ -164,11 +164,11 @@ export class MfaService {
   // ========== 私有方法 ==========
 
   private generateRandomSecret(): string {
-    // 生成 32 字符的 base32 密钥
+    // 生成 32 字符的 base32 密钥（使用加密安全的随机数生成器）
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
     let secret = '';
     for (let i = 0; i < 32; i++) {
-      secret += chars.charAt(Math.floor(Math.random() * chars.length));
+      secret += chars.charAt(crypto.randomInt(chars.length));
     }
     return secret;
   }

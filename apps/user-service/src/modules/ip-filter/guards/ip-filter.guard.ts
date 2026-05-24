@@ -68,14 +68,17 @@ export class IpFilterGuard implements CanActivate {
     if (ipParts.length !== 4 || rangeParts.length !== 4) return false;
 
     const ipInt =
-      (ipParts[0] << 24) + (ipParts[1] << 16) + (ipParts[2] << 8) + ipParts[3];
+      ((ipParts[0] << 24) >>> 0) +
+      ((ipParts[1] << 16) >>> 0) +
+      ((ipParts[2] << 8) >>> 0) +
+      ipParts[3];
     const rangeInt =
-      (rangeParts[0] << 24) +
-      (rangeParts[1] << 16) +
-      (rangeParts[2] << 8) +
+      ((rangeParts[0] << 24) >>> 0) +
+      ((rangeParts[1] << 16) >>> 0) +
+      ((rangeParts[2] << 8) >>> 0) +
       rangeParts[3];
-    const maskInt = -1 << (32 - mask);
+    const maskInt = (-1 << (32 - mask)) >>> 0;
 
-    return (ipInt & maskInt) === (rangeInt & maskInt);
+    return ((ipInt & maskInt) >>> 0) === ((rangeInt & maskInt) >>> 0);
   }
 }

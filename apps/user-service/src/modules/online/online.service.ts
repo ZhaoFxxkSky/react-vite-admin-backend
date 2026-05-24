@@ -19,10 +19,21 @@ export class OnlineService {
     private readonly sessionService: SessionService,
   ) {}
 
-  async getOnlineUsers() {
-    // 从 Redis 获取所有活跃会话
+  private async scanSessions(pattern: string): Promise<string[]> {
     const redis = this.redisService.getClient();
-    const sessionKeys = await redis.keys('session:*');
+    const keys: string[] = [];
+    let cursor = '0';
+    do {
+      const result = await redis.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
+      cursor = result[0];
+      keys.push(...result[1]);
+    } while (cursor !== '0');
+    return keys;
+  }
+
+  async getOnlineUsers() {
+    // 使用 SCAN 替代 KEYS 避免阻塞 Redis（生产环境大数据量场景）
+    const sessionKeys = await this.scanSessions('session:*');
     const users: OnlineUser[] = [];
 
     for (const key of sessionKeys) {
@@ -55,9 +66,8 @@ export class OnlineService {
   }
 
   async getUserSessions(userId: number) {
-    // 获取当前用户的所有会话
-    const redis = this.redisService.getClient();
-    const sessionKeys = await redis.keys('session:*');
+    // 使用 SCAN 替代 KEYS 避免阻塞 Redis
+    const sessionKeys = await this.scanSessions('session:*');
     const sessions: OnlineUser[] = [];
 
     for (const key of sessionKeys) {

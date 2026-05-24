@@ -63,27 +63,27 @@ export class MonitorService {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
 
-    const logs = await this.prisma.auditLog.findMany({
-      where: {
-        createdAt: {
-          gte: yesterday,
+    // 使用 aggregate 避免 OOM（大数据量场景）
+    const [totalAgg, successAgg, avgDurationAgg] = await Promise.all([
+      this.prisma.auditLog.count({
+        where: { createdAt: { gte: yesterday } },
+      }),
+      this.prisma.auditLog.count({
+        where: {
+          createdAt: { gte: yesterday },
+          statusCode: { lt: 400 },
         },
-      },
-      select: {
-        statusCode: true,
-        duration: true,
-      },
-    });
+      }),
+      this.prisma.auditLog.aggregate({
+        where: { createdAt: { gte: yesterday } },
+        _avg: { duration: true },
+      }),
+    ]);
 
-    const total = logs.length;
-    const success = logs.filter((l) => (l.statusCode ?? 0) < 400).length;
+    const total = totalAgg;
+    const success = successAgg;
     const error = total - success;
-    const avgDuration =
-      total > 0
-        ? (logs.reduce((sum, l) => sum + (l.duration ?? 0), 0) / total).toFixed(
-            2,
-          )
-        : 0;
+    const avgDuration = avgDurationAgg._avg?.duration ?? 0;
 
     return {
       totalRequests: total,
@@ -91,7 +91,7 @@ export class MonitorService {
       errorCount: error,
       successRate:
         total > 0 ? ((success / total) * 100).toFixed(2) + '%' : '0%',
-      avgDuration: avgDuration + 'ms',
+      avgDuration: avgDuration.toFixed(2) + 'ms',
     };
   }
 

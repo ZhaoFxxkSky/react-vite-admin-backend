@@ -82,19 +82,22 @@ export class WebhookService {
       return Array.isArray(events) && events.includes(event);
     });
 
-    for (const webhook of filteredWebhooks) {
-      try {
-        await this.sendWebhook(webhook, event, payload);
-      } catch (error) {
-        console.error(`Webhook delivery failed: ${webhook.url}`, error);
-        await this.prisma.webhook.update({
-          where: { id: webhook.id },
-          data: {
-            failCount: { increment: 1 },
-          },
-        });
-      }
-    }
+    // 并行发送 webhook（不阻塞主流程）
+    await Promise.allSettled(
+      filteredWebhooks.map(async (webhook) => {
+        try {
+          await this.sendWebhook(webhook, event, payload);
+        } catch (error) {
+          console.error(`Webhook delivery failed: ${webhook.url}`, error);
+          await this.prisma.webhook.update({
+            where: { id: webhook.id },
+            data: {
+              failCount: { increment: 1 },
+            },
+          });
+        }
+      }),
+    );
   }
 
   private async sendWebhook(

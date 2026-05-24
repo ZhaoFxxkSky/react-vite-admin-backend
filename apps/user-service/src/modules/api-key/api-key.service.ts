@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@core';
 import { CreateApiKeyDto, ListApiKeyDto } from './dto';
-import { randomBytes } from 'crypto';
+import { randomBytes, createHmac } from 'crypto';
 
 @Injectable()
 export class ApiKeyService {
@@ -13,13 +13,17 @@ export class ApiKeyService {
 
   async create(userId: number, dto: CreateApiKeyDto) {
     const key = `ak_${randomBytes(16).toString('hex')}`;
-    const secret = randomBytes(32).toString('hex');
+    const plainSecret = randomBytes(32).toString('hex');
+    // 使用 HMAC-SHA256 存储 secret 的哈希值，不存储明文
+    const secret = createHmac('sha256', 'api-key-secret-key')
+      .update(plainSecret)
+      .digest('hex');
 
     const expiresAt = dto.expiresDays
       ? new Date(Date.now() + dto.expiresDays * 24 * 60 * 60 * 1000)
       : null;
 
-    return this.prisma.apiKey.create({
+    const apiKey = await this.prisma.apiKey.create({
       data: {
         userId,
         name: dto.name,
@@ -30,6 +34,9 @@ export class ApiKeyService {
         expiresAt,
       },
     });
+
+    // 创建时返回明文 secret（仅创建时可见）
+    return { ...apiKey, secret: plainSecret };
   }
 
   async list(userId: number, dto: ListApiKeyDto) {
@@ -103,7 +110,11 @@ export class ApiKeyService {
       throw new ForbiddenException('API Key has expired');
     }
 
-    if (apiKey.secret !== secret) {
+    // 使用 HMAC 比较 secret
+    const secretHash = createHmac('sha256', 'api-key-secret-key')
+      .update(secret)
+      .digest('hex');
+    if (apiKey.secret !== secretHash) {
       return null;
     }
 

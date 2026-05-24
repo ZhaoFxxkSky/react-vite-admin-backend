@@ -449,8 +449,6 @@ export class AuthService {
 
     return {
       message: 'If the account exists, a reset code has been sent',
-      // 开发环境返回验证码，生产环境删除此行
-      code,
     };
   }
 
