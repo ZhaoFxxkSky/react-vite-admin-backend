@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as svgCaptcha from 'svg-captcha';
 import { RedisService } from '@core';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class CaptchaService {
@@ -31,7 +32,7 @@ export class CaptchaService {
       });
     }
 
-    const key = `captcha:${Date.now()}:${Math.random().toString(36).substring(2, 8)}`;
+    const key = `captcha:${Date.now()}:${randomBytes(4).toString('hex')}`;
     await this.redisService.set(
       `${this.CAPTCHA_PREFIX}${key}`,
       captcha.text.toLowerCase(),

@@ -3,19 +3,27 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@core';
 import { CreateApiKeyDto, ListApiKeyDto } from './dto';
 import { randomBytes, createHmac } from 'crypto';
 
 @Injectable()
 export class ApiKeyService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly secretKey: string;
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
+  ) {
+    this.secretKey = this.configService.getOrThrow<string>('API_KEY_SECRET');
+  }
 
   async create(userId: number, dto: CreateApiKeyDto) {
     const key = `ak_${randomBytes(16).toString('hex')}`;
     const plainSecret = randomBytes(32).toString('hex');
     // 使用 HMAC-SHA256 存储 secret 的哈希值，不存储明文
-    const secret = createHmac('sha256', 'api-key-secret-key')
+    const secret = createHmac('sha256', this.secretKey)
       .update(plainSecret)
       .digest('hex');
 
@@ -111,7 +119,7 @@ export class ApiKeyService {
     }
 
     // 使用 HMAC 比较 secret
-    const secretHash = createHmac('sha256', 'api-key-secret-key')
+    const secretHash = createHmac('sha256', this.secretKey)
       .update(secret)
       .digest('hex');
     if (apiKey.secret !== secretHash) {

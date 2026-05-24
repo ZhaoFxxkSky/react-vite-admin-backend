@@ -23,6 +23,7 @@ import {
 } from '@core';
 import { AuthenticatedUser } from '@shared';
 import * as https from 'https';
+import { randomBytes } from 'crypto';
 
 interface GitHubUser {
   id: number;
@@ -165,10 +166,7 @@ export class OAuthController {
   // ===================== 内部辅助 =====================
 
   private generateState(): string {
-    return (
-      Math.random().toString(36).substring(2, 15) +
-      Math.random().toString(36).substring(2, 15)
-    );
+    return randomBytes(16).toString('hex');
   }
 
   private async exchangeGitHubCode(code: string): Promise<string> {

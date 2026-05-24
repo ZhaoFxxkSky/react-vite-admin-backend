@@ -16,6 +16,7 @@ import {
   AuthenticatedUser,
 } from '@shared';
 import { v4 as uuidv4 } from 'uuid';
+import { randomInt } from 'crypto';
 import { UserEntity } from '../user/domain/entities/user.entity';
 import { UserRepository } from '../user/infrastructure/repositories/user.repository';
 import { UserService } from '../user/user.service';
@@ -435,8 +436,8 @@ export class AuthService {
       return { message: 'If the account exists, a reset code has been sent' };
     }
 
-    // 生成6位验证码
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    // 生成6位验证码（使用加密安全的随机数）
+    const code = randomInt(100000, 999999).toString();
     const key = `password_reset:${dto.username}`;
 
     // 存入Redis，5分钟过期

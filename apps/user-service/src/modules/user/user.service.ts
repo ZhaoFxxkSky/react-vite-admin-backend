@@ -6,6 +6,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { AppLogger, LogMethod, PrismaService } from '@core';
+import { ConfigService } from '@nestjs/config';
 import { hashPassword, comparePassword } from '@shared';
 import { UserEntity } from './domain/entities/user.entity';
 import { UserRepository } from './infrastructure/repositories/user.repository';
@@ -24,6 +25,7 @@ export class UserService {
     private readonly userRepository: UserRepository,
     private readonly orgService: OrganizationService,
     private readonly logger: AppLogger,
+    private readonly configService: ConfigService,
   ) {
     this.logger.setContext(UserService.name);
   }
@@ -426,7 +428,7 @@ export class UserService {
             realName: row.realName,
             email: row.email,
             phone: row.phone,
-            password: row.password || '123456',
+            password: row.password || this.configService.getOrThrow<string>('DEFAULT_USER_PASSWORD'),
           } as CreateUserDto,
           true,
         );

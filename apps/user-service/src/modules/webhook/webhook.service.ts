@@ -1,12 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@core';
+import { PrismaService, AppLogger } from '@core';
 import { CreateWebhookDto, ListWebhookDto } from './dto';
 import axios from 'axios';
 import { createHmac } from 'crypto';
 
 @Injectable()
 export class WebhookService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly logger: AppLogger,
+  ) {
+    this.logger.setContext(WebhookService.name);
+  }
 
   async create(userId: number, dto: CreateWebhookDto) {
     return this.prisma.webhook.create({
@@ -88,7 +93,7 @@ export class WebhookService {
         try {
           await this.sendWebhook(webhook, event, payload);
         } catch (error) {
-          console.error(`Webhook delivery failed: ${webhook.url}`, error);
+          this.logger.error(`Webhook delivery failed: ${webhook.url}`, error);
           await this.prisma.webhook.update({
             where: { id: webhook.id },
             data: {

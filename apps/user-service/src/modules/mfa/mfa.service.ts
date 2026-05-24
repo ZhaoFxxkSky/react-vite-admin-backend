@@ -240,7 +240,7 @@ export class MfaService {
     for (let i = 0; i < 10; i++) {
       let code = '';
       for (let j = 0; j < 10; j++) {
-        code += chars.charAt(Math.floor(Math.random() * chars.length));
+        code += chars.charAt(crypto.randomInt(chars.length));
       }
       codes.push(code);
     }

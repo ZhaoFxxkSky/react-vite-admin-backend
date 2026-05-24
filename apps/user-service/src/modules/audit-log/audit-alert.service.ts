@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { AppLogger } from '@core';
 import { MessageService } from '../message/message.service';
 
 export interface AlertRule {
@@ -78,7 +79,12 @@ export class AuditAlertService {
     },
   ];
 
-  constructor(private readonly messageService: MessageService) {}
+  constructor(
+    private readonly messageService: MessageService,
+    private readonly logger: AppLogger,
+  ) {
+    this.logger.setContext(AuditAlertService.name);
+  }
 
   async evaluate(auditData: {
     userId?: number;
@@ -141,7 +147,7 @@ export class AuditAlertService {
           }
           break;
         case 'log':
-          console.warn(`[AuditAlert] ${action.config.message}`, data);
+          this.logger.warn(`[AuditAlert] ${action.config.message}`, data);
           break;
         case 'webhook':
           // TODO: 实现 webhook 推送
