@@ -6,7 +6,6 @@ import {
   Body,
   UseGuards,
   UsePipes,
-  ParseIntPipe,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
@@ -140,10 +139,7 @@ export class OAuthController {
     description: '绑定第三方登录账号',
   })
   @UsePipes(new ZodValidationPipe(bindOAuthSchema))
-  bindUser(
-    @CurrentUser() user: AuthenticatedUser,
-    @Body() dto: BindOAuthDto,
-  ) {
+  bindUser(@CurrentUser() user: AuthenticatedUser, @Body() dto: BindOAuthDto) {
     return this.oauthService.bindUser(user.id, dto);
   }
 

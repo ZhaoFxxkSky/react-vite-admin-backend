@@ -1,10 +1,26 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, UsePipes, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  UsePipes,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ZodValidationPipe, CurrentUser } from '@core';
 import { JwtGuard } from '@app/user-platform';
 import { AuthenticatedUser } from '@shared';
 import { WebhookService } from './webhook.service';
-import { CreateWebhookDto, createWebhookSchema, ListWebhookDto, listWebhookSchema } from './dto';
+import {
+  CreateWebhookDto,
+  createWebhookSchema,
+  ListWebhookDto,
+  listWebhookSchema,
+} from './dto';
 
 @ApiTags('Webhook 管理')
 @ApiBearerAuth()
@@ -15,18 +31,27 @@ export class WebhookController {
 
   @Post()
   @UsePipes(new ZodValidationPipe(createWebhookSchema))
-  async create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateWebhookDto) {
+  async create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: CreateWebhookDto,
+  ) {
     return this.webhookService.create(user.id, dto);
   }
 
   @Get()
   @UsePipes(new ZodValidationPipe(listWebhookSchema))
-  async list(@CurrentUser() user: AuthenticatedUser, @Query() dto: ListWebhookDto) {
+  async list(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() dto: ListWebhookDto,
+  ) {
     return this.webhookService.list(user.id, dto);
   }
 
   @Delete(':id')
-  async delete(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+  async delete(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
     return this.webhookService.delete(user.id, Number(id));
   }
 
@@ -40,7 +65,10 @@ export class WebhookController {
   }
 
   @Post('test')
-  async testWebhook(@Body('url') url: string, @Body('secret') secret: string) {
+  async testWebhook(
+    @Body('url') _url: string,
+    @Body('secret') _secret: string,
+  ) {
     // TODO: 实现测试推送
     return { message: 'Test webhook sent' };
   }

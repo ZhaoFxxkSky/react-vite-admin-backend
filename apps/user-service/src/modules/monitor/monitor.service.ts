@@ -32,19 +32,14 @@ export class MonitorService {
   }
 
   async getDatabaseStats() {
-    const [
-      userCount,
-      roleCount,
-      orgCount,
-      auditLogCount,
-      loginLogCount,
-    ] = await Promise.all([
-      this.prisma.user.count(),
-      this.prisma.role.count(),
-      this.prisma.organization.count(),
-      this.prisma.auditLog.count(),
-      this.prisma.loginLog.count(),
-    ]);
+    const [userCount, roleCount, orgCount, auditLogCount, loginLogCount] =
+      await Promise.all([
+        this.prisma.user.count(),
+        this.prisma.role.count(),
+        this.prisma.organization.count(),
+        this.prisma.auditLog.count(),
+        this.prisma.loginLog.count(),
+      ]);
 
     return {
       userCount,
@@ -83,15 +78,19 @@ export class MonitorService {
     const total = logs.length;
     const success = logs.filter((l) => (l.statusCode ?? 0) < 400).length;
     const error = total - success;
-    const avgDuration = total > 0
-      ? (logs.reduce((sum, l) => sum + (l.duration ?? 0), 0) / total).toFixed(2)
-      : 0;
+    const avgDuration =
+      total > 0
+        ? (logs.reduce((sum, l) => sum + (l.duration ?? 0), 0) / total).toFixed(
+            2,
+          )
+        : 0;
 
     return {
       totalRequests: total,
       successCount: success,
       errorCount: error,
-      successRate: total > 0 ? ((success / total) * 100).toFixed(2) + '%' : '0%',
+      successRate:
+        total > 0 ? ((success / total) * 100).toFixed(2) + '%' : '0%',
       avgDuration: avgDuration + 'ms',
     };
   }

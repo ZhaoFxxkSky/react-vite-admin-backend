@@ -12,7 +12,10 @@ export const updateProfileSchema = extendApi(
       example: 'zhangsan@example.com',
     }),
     phone: extendApi(
-      z.string().regex(/^1[3-9]\d{9}$/).nullish(),
+      z
+        .string()
+        .regex(/^1[3-9]\d{9}$/)
+        .nullish(),
       { description: '手机号', example: '13800138000' },
     ),
     realName: extendApi(z.string().max(50).nullish(), {

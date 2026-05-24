@@ -1,10 +1,26 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, UsePipes, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  UsePipes,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ZodValidationPipe, CurrentUser } from '@core';
 import { JwtGuard } from '@app/user-platform';
 import { AuthenticatedUser } from '@shared';
 import { NoticeService } from './notice.service';
-import { CreateNoticeDto, createNoticeSchema, ListNoticeDto, listNoticeSchema } from './dto';
+import {
+  CreateNoticeDto,
+  createNoticeSchema,
+  ListNoticeDto,
+  listNoticeSchema,
+} from './dto';
 
 @ApiTags('公告管理')
 @ApiBearerAuth()
@@ -15,7 +31,10 @@ export class NoticeAdminController {
 
   @Post()
   @UsePipes(new ZodValidationPipe(createNoticeSchema))
-  async create(@Body() dto: CreateNoticeDto, @CurrentUser() user: AuthenticatedUser) {
+  async create(
+    @Body() dto: CreateNoticeDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
     return this.noticeService.create(dto, user.id);
   }
 
@@ -65,7 +84,10 @@ export class NoticeController {
   }
 
   @Post(':id/read')
-  async markAsRead(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+  async markAsRead(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
     return this.noticeService.markAsRead(Number(id), user.id);
   }
 

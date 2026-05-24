@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, UseGuards, UsePipes, Query, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  UseGuards,
+  UsePipes,
+  Query,
+  Res,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ZodValidationPipe } from '@core';
 import { JwtGuard } from '@app/user-platform';
@@ -26,8 +35,12 @@ export class AuditLogController {
   @Post('export')
   @UsePipes(new ZodValidationPipe(listAuditLogSchema))
   async export(@Body() dto: ListAuditLogDto, @Res() res: Response) {
-    const { list } = await this.auditLogService.list({ ...dto, current: 1, pageSize: 10000 });
-    
+    const { list } = await this.auditLogService.list({
+      ...dto,
+      current: 1,
+      pageSize: 10000,
+    });
+
     const headers = [
       { key: 'id', title: 'ID' },
       { key: 'userId', title: '用户ID' },
@@ -41,9 +54,15 @@ export class AuditLogController {
     ];
 
     const buffer = this.excelService.export(list, headers);
-    
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', 'attachment; filename=audit-logs.xlsx');
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename=audit-logs.xlsx',
+    );
     res.send(buffer);
   }
 }

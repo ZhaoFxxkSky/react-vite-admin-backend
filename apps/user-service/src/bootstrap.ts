@@ -21,7 +21,11 @@ export function bootstrapApp(app: NestExpressApplication) {
     new RequestIdMiddleware().use(req, res, next),
   );
 
-  app.useGlobalGuards(app.get(JwtGuard), app.get(PermissionsGuard), app.get(CustomThrottlerGuard));
+  app.useGlobalGuards(
+    app.get(JwtGuard),
+    app.get(PermissionsGuard),
+    app.get(CustomThrottlerGuard),
+  );
 
   const exceptionFilter = app.get(GlobalExceptionFilter);
   app.useGlobalFilters(exceptionFilter);

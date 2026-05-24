@@ -1,4 +1,4 @@
-import { Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtGuard } from '@app/user-platform';
 import { SchedulerService } from './scheduler.service';
@@ -13,8 +13,16 @@ export class SchedulerController {
   @Get('tasks')
   async getTasks() {
     return [
-      { name: 'cleanAuditLogs', description: '清理过期审计日志', cron: '0 3 * * *' },
-      { name: 'cleanExpiredFiles', description: '清理过期文件', cron: '0 * * * *' },
+      {
+        name: 'cleanAuditLogs',
+        description: '清理过期审计日志',
+        cron: '0 3 * * *',
+      },
+      {
+        name: 'cleanExpiredFiles',
+        description: '清理过期文件',
+        cron: '0 * * * *',
+      },
     ];
   }
 }

@@ -153,8 +153,13 @@ export class AuthController {
 
   @Public()
   @Post('forgot-password')
-  @ApiOperation({ summary: 'Forgot password', description: '忘记密码，发送重置验证码' })
-  @ApiBody({ schema: generateSchema(forgotPasswordSchema, false, '3.0') as any })
+  @ApiOperation({
+    summary: 'Forgot password',
+    description: '忘记密码，发送重置验证码',
+  })
+  @ApiBody({
+    schema: generateSchema(forgotPasswordSchema, false, '3.0') as any,
+  })
   @UsePipes(new ZodValidationPipe(forgotPasswordSchema))
   async forgotPassword(@Req() req: any, @Body() dto: ForgotPasswordDto) {
     const ip = req.ip || 'unknown';
@@ -164,7 +169,10 @@ export class AuthController {
 
   @Public()
   @Post('reset-password')
-  @ApiOperation({ summary: 'Reset password', description: '使用验证码重置密码' })
+  @ApiOperation({
+    summary: 'Reset password',
+    description: '使用验证码重置密码',
+  })
   @ApiBody({ schema: generateSchema(resetPasswordSchema, false, '3.0') as any })
   @UsePipes(new ZodValidationPipe(resetPasswordSchema))
   async resetPassword(@Req() req: any, @Body() dto: ResetPasswordDto) {

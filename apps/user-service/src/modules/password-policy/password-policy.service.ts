@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '@core';
 import { comparePassword, hashPassword } from '@shared';
 import { UpdatePasswordPolicyDto } from './dto';
@@ -75,15 +72,11 @@ export class PasswordPolicyService {
     const policy = await this.getPolicy();
 
     if (password.length < policy.minLength) {
-      throw new BadRequestException(
-        `密码长度不能少于 ${policy.minLength} 位`,
-      );
+      throw new BadRequestException(`密码长度不能少于 ${policy.minLength} 位`);
     }
 
     if (password.length > policy.maxLength) {
-      throw new BadRequestException(
-        `密码长度不能超过 ${policy.maxLength} 位`,
-      );
+      throw new BadRequestException(`密码长度不能超过 ${policy.maxLength} 位`);
     }
 
     if (policy.requireUppercase && !/[A-Z]/.test(password)) {

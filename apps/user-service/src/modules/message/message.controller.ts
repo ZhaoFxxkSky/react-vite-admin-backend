@@ -1,10 +1,26 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, UsePipes, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  UsePipes,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ZodValidationPipe, CurrentUser } from '@core';
 import { JwtGuard } from '@app/user-platform';
 import { AuthenticatedUser } from '@shared';
 import { MessageService } from './message.service';
-import { SendMessageDto, sendMessageSchema, ListMessageDto, listMessageSchema } from './dto';
+import {
+  SendMessageDto,
+  sendMessageSchema,
+  ListMessageDto,
+  listMessageSchema,
+} from './dto';
 
 @ApiTags('消息中心')
 @ApiBearerAuth()

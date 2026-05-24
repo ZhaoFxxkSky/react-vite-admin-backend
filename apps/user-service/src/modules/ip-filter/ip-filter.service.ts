@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@core';
 
-interface IpRule {
-  id: number;
-  ip: string;
-  type: 'white' | 'black';
-  remark: string;
-  createdAt: Date;
-}
+// interface IpRule {
+//   id: number;
+//   ip: string;
+//   type: 'white' | 'black';
+//   remark: string;
+//   createdAt: Date;
+// }
 
 @Injectable()
 export class IpFilterService {
@@ -19,10 +19,7 @@ export class IpFilterService {
     };
 
     if (!type) {
-      where.OR = [
-        { group: 'ip_whitelist' },
-        { group: 'ip_blacklist' },
-      ];
+      where.OR = [{ group: 'ip_whitelist' }, { group: 'ip_blacklist' }];
     }
 
     const configs = await this.prisma.sysConfig.findMany({
@@ -41,7 +38,7 @@ export class IpFilterService {
 
   async addRule(ip: string, type: 'white' | 'black', remark?: string) {
     const group = type === 'white' ? 'ip_whitelist' : 'ip_blacklist';
-    
+
     return this.prisma.sysConfig.create({
       data: {
         key: `ip_${type}_${Date.now()}`,
@@ -64,7 +61,7 @@ export class IpFilterService {
   async autoBlock(ip: string, durationMinutes: number = 30) {
     const key = `ip_block_${ip}`;
     const expiresAt = new Date(Date.now() + durationMinutes * 60 * 1000);
-    
+
     // 检查是否已存在
     const existing = await this.prisma.sysConfig.findUnique({
       where: { key },
@@ -101,7 +98,9 @@ export class IpFilterService {
 
     for (const block of blocks) {
       // 从 description 解析过期时间
-      const match = block.description?.match(/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/);
+      const match = block.description?.match(
+        /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/,
+      );
       if (match) {
         const expiresAt = new Date(match[1]);
         if (expiresAt < now) {

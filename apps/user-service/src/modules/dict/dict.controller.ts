@@ -140,10 +140,7 @@ export class DictController {
     type: String,
     description: '字典数据状态',
   })
-  listData(
-    @Query('dictId') dictId?: string,
-    @Query('status') status?: string,
-  ) {
+  listData(@Query('dictId') dictId?: string, @Query('status') status?: string) {
     return this.dictService.listData({
       dictId: dictId ? Number(dictId) : undefined,
       status,

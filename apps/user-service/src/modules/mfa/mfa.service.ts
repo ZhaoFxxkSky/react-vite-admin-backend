@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '@core';
 import { AppLogger } from '@core';
 import * as crypto from 'crypto';
@@ -15,7 +15,7 @@ export class MfaService {
   // 生成 TOTP Secret
   async generateSecret(userId: number) {
     const secret = this.generateRandomSecret();
-    
+
     // 临时存储，等验证后才启用
     await this.prisma.user.update({
       where: { id: userId },
@@ -56,7 +56,7 @@ export class MfaService {
 
     // 生成备份码
     const backupCodes = this.generateBackupCodes();
-    
+
     await this.prisma.user.update({
       where: { id: userId },
       data: {
@@ -177,7 +177,7 @@ export class MfaService {
     // 使用原生 crypto 实现 TOTP 验证
     const now = Math.floor(Date.now() / 1000);
     const timeStep = 30; // 30 秒窗口
-    
+
     // 检查当前窗口和前/后一个窗口（容差）
     for (let i = -1; i <= 1; i++) {
       const counter = Math.floor((now + i * timeStep) / timeStep);
@@ -186,55 +186,57 @@ export class MfaService {
         return true;
       }
     }
-    
+
     return false;
   }
 
   private generateTOTP(secret: string, counter: number): string {
     // Base32 解码
     const key = this.base32Decode(secret);
-    
+
     // 将 counter 转为 8 字节 buffer
     const buf = Buffer.alloc(8);
     buf.writeBigUInt64BE(BigInt(counter), 0);
-    
+
     // HMAC-SHA1
     const hmac = crypto.createHmac('sha1', key);
     hmac.update(buf);
     const hash = hmac.digest();
-    
+
     // 动态截断
     const offset = hash[hash.length - 1] & 0x0f;
-    const code = ((hash[offset] & 0x7f) << 24 |
-                  (hash[offset + 1] & 0xff) << 16 |
-                  (hash[offset + 2] & 0xff) << 8 |
-                  (hash[offset + 3] & 0xff)) % 1000000;
-    
+    const code =
+      (((hash[offset] & 0x7f) << 24) |
+        ((hash[offset + 1] & 0xff) << 16) |
+        ((hash[offset + 2] & 0xff) << 8) |
+        (hash[offset + 3] & 0xff)) %
+      1000000;
+
     return code.toString().padStart(6, '0');
   }
 
   private base32Decode(str: string): Buffer {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
     let bits = '';
-    
+
     for (const char of str.toUpperCase()) {
       const val = chars.indexOf(char);
       if (val === -1) continue;
       bits += val.toString(2).padStart(5, '0');
     }
-    
+
     const bytes = [];
     for (let i = 0; i + 8 <= bits.length; i += 8) {
       bytes.push(parseInt(bits.substring(i, i + 8), 2));
     }
-    
+
     return Buffer.from(bytes);
   }
 
   private generateBackupCodes(): string[] {
     const codes: string[] = [];
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    
+
     for (let i = 0; i < 10; i++) {
       let code = '';
       for (let j = 0; j < 10; j++) {
@@ -242,7 +244,7 @@ export class MfaService {
       }
       codes.push(code);
     }
-    
+
     return codes;
   }
 }

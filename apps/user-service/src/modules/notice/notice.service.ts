@@ -25,10 +25,7 @@ export class NoticeService {
   async list(dto: ListNoticeDto) {
     const [list, total] = await Promise.all([
       this.prisma.notice.findMany({
-        orderBy: [
-          { isTop: 'desc' },
-          { createdAt: 'desc' },
-        ],
+        orderBy: [{ isTop: 'desc' }, { createdAt: 'desc' }],
         skip: (dto.current - 1) * dto.pageSize,
         take: dto.pageSize,
       }),
@@ -76,19 +73,13 @@ export class NoticeService {
       where: {
         status: 'published',
         startAt: { lte: now },
-        OR: [
-          { endAt: null },
-          { endAt: { gte: now } },
-        ],
+        OR: [{ endAt: null }, { endAt: { gte: now } }],
       },
-      orderBy: [
-        { isTop: 'desc' },
-        { createdAt: 'desc' },
-      ],
+      orderBy: [{ isTop: 'desc' }, { createdAt: 'desc' }],
     });
 
     // 过滤角色
-    const filteredNotices = notices.filter((notice: any) => {
+    notices.filter((notice: any) => {
       const targetRoles = notice.targetRoles as string[];
       if (!targetRoles || targetRoles.length === 0) return true;
       return roleCodes.some((role) => targetRoles.includes(role));
@@ -144,10 +135,7 @@ export class NoticeService {
       where: {
         status: 'published',
         startAt: { lte: now },
-        OR: [
-          { endAt: null },
-          { endAt: { gte: now } },
-        ],
+        OR: [{ endAt: null }, { endAt: { gte: now } }],
       },
       select: { id: true },
     });

@@ -47,4 +47,6 @@ export const updatePasswordPolicySchema = extendApi(
   { title: 'UpdatePasswordPolicyDto', description: '更新密码策略请求参数' },
 );
 
-export type UpdatePasswordPolicyDto = z.infer<typeof updatePasswordPolicySchema>;
+export type UpdatePasswordPolicyDto = z.infer<
+  typeof updatePasswordPolicySchema
+>;

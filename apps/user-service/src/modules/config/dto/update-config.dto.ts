@@ -6,7 +6,12 @@ export const updateConfigSchema = extendApi(
   idSchema.merge(
     z.object({
       key: extendApi(
-        z.string().min(1).max(100).regex(/^[a-zA-Z0-9_.-]+$/).optional(),
+        z
+          .string()
+          .min(1)
+          .max(100)
+          .regex(/^[a-zA-Z0-9_.-]+$/)
+          .optional(),
         { description: '配置键', example: 'app.name' },
       ),
       value: extendApi(z.string().min(1).optional(), {

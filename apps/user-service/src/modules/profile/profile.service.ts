@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException, ForbiddenException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { AppLogger, LogMethod } from '@core';
 import { comparePassword, hashPassword } from '@shared';
 import { UserRepository } from '../user/infrastructure/repositories/user.repository';
@@ -21,7 +27,7 @@ export class ProfileService {
   async getProfile(userId: number) {
     const user = await this.userRepository.getById(userId);
     if (!user) throw new NotFoundException('User not found');
-    const { password, ...rest } = user;
+    const { _password, ...rest } = user;
     return rest;
   }
 
@@ -44,7 +50,7 @@ export class ProfileService {
     }
 
     const updated = await this.userRepository.updateById(userId, dto as any);
-    const { password, ...rest } = updated;
+    const { _password, ...rest } = updated;
     return rest;
   }
 
@@ -59,12 +65,21 @@ export class ProfileService {
     }
 
     // 检查密码策略
-    try { await this.passwordPolicyService.validatePassword(dto.newPassword); } catch (e: any) { throw new ForbiddenException(e.message); }
+    try {
+      await this.passwordPolicyService.validatePassword(dto.newPassword);
+    } catch (e: any) {
+      throw new ForbiddenException(e.message);
+    }
 
     // 检查历史密码
-    const isHistory = await this.passwordPolicyService.checkPasswordHistory(userId, dto.newPassword);
+    const isHistory = await this.passwordPolicyService.checkPasswordHistory(
+      userId,
+      dto.newPassword,
+    );
     if (isHistory) {
-      throw new ForbiddenException('New password cannot be the same as recent passwords');
+      throw new ForbiddenException(
+        'New password cannot be the same as recent passwords',
+      );
     }
 
     const hashed = await hashPassword(dto.newPassword);
@@ -98,7 +113,9 @@ export class ProfileService {
     }
 
     // 上传文件
-    const originalname = Buffer.from(file.originalname, 'latin1').toString('utf8');
+    const originalname = Buffer.from(file.originalname, 'latin1').toString(
+      'utf8',
+    );
     const uploaded = await this.fileService.upload(
       {
         originalname,
@@ -114,7 +131,9 @@ export class ProfileService {
       avatar: uploaded.url,
     } as any);
 
-    this.logger.info(`Avatar uploaded: userId=${userId}, fileId=${uploaded.id}`);
+    this.logger.info(
+      `Avatar uploaded: userId=${userId}, fileId=${uploaded.id}`,
+    );
     return { avatar: uploaded.url };
   }
 }

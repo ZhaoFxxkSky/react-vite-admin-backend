@@ -1,11 +1,25 @@
-import { Controller, Get, Put, Post, Body, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Put,
+  Post,
+  Body,
+  UseGuards,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { ZodValidationPipe, CurrentUser } from '@core';
 import { JwtGuard } from '@app/user-platform';
 import { AuthenticatedUser } from '@shared';
 import { ProfileService } from './profile.service';
-import { UpdateProfileDto, updateProfileSchema, ChangePasswordDto, changePasswordSchema } from './dto';
+import {
+  UpdateProfileDto,
+  updateProfileSchema,
+  ChangePasswordDto,
+  changePasswordSchema,
+} from './dto';
 
 @ApiTags('个人中心')
 @ApiBearerAuth()

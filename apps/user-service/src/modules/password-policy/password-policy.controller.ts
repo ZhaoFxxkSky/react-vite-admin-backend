@@ -9,10 +9,7 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { generateSchema } from '@anatine/zod-openapi';
 import { PasswordPolicyService } from './password-policy.service';
-import {
-  updatePasswordPolicySchema,
-  UpdatePasswordPolicyDto,
-} from './dto';
+import { updatePasswordPolicySchema, UpdatePasswordPolicyDto } from './dto';
 import {
   PermissionsGuard,
   ApiPermission,
@@ -25,9 +22,7 @@ import {
 @Controller('password-policy')
 @UseGuards(JwtGuard, PermissionsGuard)
 export class PasswordPolicyController {
-  constructor(
-    private readonly passwordPolicyService: PasswordPolicyService,
-  ) {}
+  constructor(private readonly passwordPolicyService: PasswordPolicyService) {}
 
   @Get()
   @ApiPermission({

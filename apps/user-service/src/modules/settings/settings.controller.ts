@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Body, UseGuards, Post } from '@nestjs/common';
+import { Controller, Get, Put, Body, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtGuard } from '@app/user-platform';
 import { Public } from '@core';
@@ -41,7 +41,7 @@ export class SettingsController {
     return this.settingsService.setSecurityConfig(config);
   }
 
-  // ===================== 品牌配置（公开接口�?====================
+  // ===================== 品牌配置（公开接口�?====================
 
   @Public()
   @Get('brand')

@@ -17,9 +17,9 @@ redis:
   db: 0
 
 jwt:
-  secret: "${JWT_SECRET}"
+  secret: '${JWT_SECRET}'
   expiresIn: 15m
-  refreshSecret: "${JWT_REFRESH_SECRET}"
+  refreshSecret: '${JWT_REFRESH_SECRET}'
   refreshExpiresIn: 7d
 
 storage:

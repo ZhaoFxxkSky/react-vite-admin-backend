@@ -44,7 +44,7 @@ export class UserService {
   async getById(id: number) {
     const user = await this.userRepository.getById(id);
     if (!user) throw new NotFoundException('User not found');
-    const { password, ...rest } = user;
+    const { password: _password, ...rest } = user;
     return rest;
   }
 
@@ -399,7 +399,7 @@ export class UserService {
       },
     });
 
-    return users.map(user => ({
+    return users.map((user) => ({
       id: user.id,
       username: user.username,
       realName: user.realName,
@@ -419,13 +419,16 @@ export class UserService {
 
     for (const row of data) {
       try {
-        await this.save({
-          username: row.username,
-          realName: row.realName,
-          email: row.email,
-          phone: row.phone,
-          password: row.password || '123456',
-        } as CreateUserDto, true);
+        await this.save(
+          {
+            username: row.username,
+            realName: row.realName,
+            email: row.email,
+            phone: row.phone,
+            password: row.password || '123456',
+          } as CreateUserDto,
+          true,
+        );
         results.success++;
       } catch (error: any) {
         results.fail++;
@@ -438,8 +441,18 @@ export class UserService {
 
   async generateImportTemplate() {
     return [
-      { username: 'zhangsan', realName: '张三', email: 'zhangsan@example.com', phone: '13800138001' },
-      { username: 'lisi', realName: '李四', email: 'lisi@example.com', phone: '13800138002' },
+      {
+        username: 'zhangsan',
+        realName: '张三',
+        email: 'zhangsan@example.com',
+        phone: '13800138001',
+      },
+      {
+        username: 'lisi',
+        realName: '李四',
+        email: 'lisi@example.com',
+        phone: '13800138002',
+      },
     ];
   }
 
@@ -452,7 +465,9 @@ export class UserService {
       data: { status },
     });
 
-    this.logger.info(`Batch change status: count=${result.count}, status=${status}`);
+    this.logger.info(
+      `Batch change status: count=${result.count}, status=${status}`,
+    );
     return { count: result.count };
   }
 
@@ -478,8 +493,9 @@ export class UserService {
       await this.setRolesByUserId(userId, roleIds);
     }
 
-    this.logger.info(`Batch set roles: userCount=${ids.length}, roleIds=${roleIds.join(',')}`);
+    this.logger.info(
+      `Batch set roles: userCount=${ids.length}, roleIds=${roleIds.join(',')}`,
+    );
     return { userCount: ids.length, roleIds };
   }
 }
-

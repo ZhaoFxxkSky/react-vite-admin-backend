@@ -126,7 +126,9 @@ export class SettingsService {
     return config;
   }
 
-  private async getConfigsByGroup(group: string): Promise<Record<string, string>> {
+  private async getConfigsByGroup(
+    group: string,
+  ): Promise<Record<string, string>> {
     const configs = await this.prisma.sysConfig.findMany({
       where: { group },
     });
@@ -137,7 +139,10 @@ export class SettingsService {
     return result;
   }
 
-  private async setConfigsByGroup(group: string, configs: Record<string, string>) {
+  private async setConfigsByGroup(
+    group: string,
+    configs: Record<string, string>,
+  ) {
     for (const [key, value] of Object.entries(configs)) {
       await this.prisma.sysConfig.upsert({
         where: { key },

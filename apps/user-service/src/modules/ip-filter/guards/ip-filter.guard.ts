@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { PrismaService } from '@core';
 
@@ -22,7 +27,9 @@ export class IpFilterGuard implements CanActivate {
     });
 
     if (whiteList.length > 0) {
-      const allowed = whiteList.some((rule) => this.ipMatches(clientIp, rule.value));
+      const allowed = whiteList.some((rule) =>
+        this.ipMatches(clientIp, rule.value),
+      );
       if (!allowed) {
         throw new ForbiddenException('IP not in whitelist');
       }
@@ -33,7 +40,9 @@ export class IpFilterGuard implements CanActivate {
       where: { group: 'ip_blacklist' },
     });
 
-    const blocked = blackList.some((rule) => this.ipMatches(clientIp, rule.value));
+    const blocked = blackList.some((rule) =>
+      this.ipMatches(clientIp, rule.value),
+    );
     if (blocked) {
       throw new ForbiddenException('IP blocked');
     }
@@ -52,16 +61,21 @@ export class IpFilterGuard implements CanActivate {
   private isInCidr(ip: string, cidr: string): boolean {
     const [range, bits] = cidr.split('/');
     const mask = parseInt(bits, 10);
-    
+
     const ipParts = ip.split('.').map(Number);
     const rangeParts = range.split('.').map(Number);
-    
+
     if (ipParts.length !== 4 || rangeParts.length !== 4) return false;
-    
-    const ipInt = (ipParts[0] << 24) + (ipParts[1] << 16) + (ipParts[2] << 8) + ipParts[3];
-    const rangeInt = (rangeParts[0] << 24) + (rangeParts[1] << 16) + (rangeParts[2] << 8) + rangeParts[3];
+
+    const ipInt =
+      (ipParts[0] << 24) + (ipParts[1] << 16) + (ipParts[2] << 8) + ipParts[3];
+    const rangeInt =
+      (rangeParts[0] << 24) +
+      (rangeParts[1] << 16) +
+      (rangeParts[2] << 8) +
+      rangeParts[3];
     const maskInt = -1 << (32 - mask);
-    
+
     return (ipInt & maskInt) === (rangeInt & maskInt);
   }
 }

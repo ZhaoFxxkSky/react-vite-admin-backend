@@ -10,7 +10,13 @@ import { AuditLogService } from '../audit-log/audit-log.service';
 import { AuditAlertService } from './audit-alert.service';
 import { Request } from 'express';
 
-const SENSITIVE_FIELDS = ['password', 'token', 'secret', 'authorization', 'creditCard'];
+const SENSITIVE_FIELDS = [
+  'password',
+  'token',
+  'secret',
+  'authorization',
+  'creditCard',
+];
 
 function maskSensitiveData(data: any): any {
   if (!data || typeof data !== 'object') return data;
@@ -58,7 +64,7 @@ export class AuditLogInterceptor implements NestInterceptor {
     const isSensitive = this.isSensitive(path, method);
 
     return next.handle().pipe(
-      tap(async (response) => {
+      tap(async (_response) => {
         const duration = Date.now() - startTime;
         const statusCode = context.switchToHttp().getResponse().statusCode;
 

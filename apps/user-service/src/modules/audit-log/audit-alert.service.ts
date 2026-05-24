@@ -36,7 +36,10 @@ export class AuditAlertService {
       actions: [
         {
           type: 'message',
-          config: { title: '敏感操作告警', template: '检测到敏感操作：{action} {path}' },
+          config: {
+            title: '敏感操作告警',
+            template: '检测到敏感操作：{action} {path}',
+          },
         },
       ],
     },

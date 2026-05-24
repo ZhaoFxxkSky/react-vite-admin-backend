@@ -11,9 +11,12 @@ export const createNoticeSchema = extendApi(
       description: '内容（富文本）',
       example: '<p>系统将于今晚进行维护...</p>',
     }),
-    type: extendApi(z.enum(['system', 'update', 'maintenance', 'security']).default('system'), {
-      description: '类型',
-    }),
+    type: extendApi(
+      z.enum(['system', 'update', 'maintenance', 'security']).default('system'),
+      {
+        description: '类型',
+      },
+    ),
     isTop: extendApi(z.boolean().default(false), {
       description: '是否置顶',
     }),

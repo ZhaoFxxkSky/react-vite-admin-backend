@@ -1,7 +1,6 @@
 import { Module, DynamicModule } from '@nestjs/common';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { loadYamlConfig } from './yaml-config.loader';
-import { configSchema } from './config.schema';
 
 @Module({})
 export class ConfigModule {

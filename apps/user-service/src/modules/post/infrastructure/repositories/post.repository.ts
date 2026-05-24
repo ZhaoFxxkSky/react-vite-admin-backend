@@ -73,10 +73,7 @@ export class PostRepository implements IPostRepository {
     return created;
   }
 
-  async updateById(
-    id: number,
-    data: Partial<PostEntity>,
-  ): Promise<PostEntity> {
+  async updateById(id: number, data: Partial<PostEntity>): Promise<PostEntity> {
     const patch: Record<string, unknown> = {};
     if (data.code !== undefined) patch.code = data.code;
     if (data.name !== undefined) patch.name = data.name;

@@ -4,7 +4,11 @@ import { extendApi } from '@anatine/zod-openapi';
 export const createConfigSchema = extendApi(
   z.object({
     key: extendApi(
-      z.string().min(1).max(100).regex(/^[a-zA-Z0-9_.-]+$/),
+      z
+        .string()
+        .min(1)
+        .max(100)
+        .regex(/^[a-zA-Z0-9_.-]+$/),
       { description: '配置键(全局唯一)', example: 'app.name' },
     ),
     value: extendApi(z.string().min(1), {

@@ -7,10 +7,17 @@ export const createTenantSchema = extendApi(
       description: '租户名称',
       example: 'Acme Corporation',
     }),
-    code: extendApi(z.string().min(3).max(50).regex(/^[a-z0-9-]+$/), {
-      description: '租户编码（唯一，小写+数字+横线）',
-      example: 'acme-corp',
-    }),
+    code: extendApi(
+      z
+        .string()
+        .min(3)
+        .max(50)
+        .regex(/^[a-z0-9-]+$/),
+      {
+        description: '租户编码（唯一，小写+数字+横线）',
+        example: 'acme-corp',
+      },
+    ),
     description: extendApi(z.string().max(255).nullish(), {
       description: '描述',
     }),

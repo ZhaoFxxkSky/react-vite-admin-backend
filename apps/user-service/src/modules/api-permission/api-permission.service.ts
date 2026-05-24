@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@core';
-import { Prisma } from '@prisma/client';
 
 export interface PermissionItem {
   id: number;
@@ -172,4 +171,3 @@ export class ApiPermissionService {
     });
   }
 }
-

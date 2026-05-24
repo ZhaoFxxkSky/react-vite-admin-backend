@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '@core';
 import { CreateApiKeyDto, ListApiKeyDto } from './dto';
 import { randomBytes } from 'crypto';
