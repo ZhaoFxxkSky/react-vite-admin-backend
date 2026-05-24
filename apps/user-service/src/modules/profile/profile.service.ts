@@ -27,7 +27,8 @@ export class ProfileService {
   async getProfile(userId: number) {
     const user = await this.userRepository.getById(userId);
     if (!user) throw new NotFoundException('User not found');
-    const { _password, ...rest } = user;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...rest } = user;
     return rest;
   }
 
@@ -50,7 +51,8 @@ export class ProfileService {
     }
 
     const updated = await this.userRepository.updateById(userId, dto as any);
-    const { _password, ...rest } = updated;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...rest } = updated;
     return rest;
   }
 

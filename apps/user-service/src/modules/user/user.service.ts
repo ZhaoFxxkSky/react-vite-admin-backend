@@ -44,7 +44,8 @@ export class UserService {
   async getById(id: number) {
     const user = await this.userRepository.getById(id);
     if (!user) throw new NotFoundException('User not found');
-    const { password: _password, ...rest } = user;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...rest } = user;
     return rest;
   }
 
