@@ -55,7 +55,7 @@ export class SchedulerService {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    // TODO: 实际删除文件系统中的文件
+    // TODO(v2): 实际删除文件系统中的过期文件（需要接入文件存储服务）
     this.logger.log('Expired files cleanup completed');
   }
 }

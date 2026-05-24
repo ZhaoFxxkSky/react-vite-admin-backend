@@ -69,7 +69,7 @@ export class WebhookController {
     @Body('url') _url: string,
     @Body('secret') _secret: string,
   ) {
-    // TODO: 实现测试推送
+    // TODO(v2): 实现测试推送（发送测试事件到指定 webhook URL）
     return { message: 'Test webhook sent' };
   }
 }

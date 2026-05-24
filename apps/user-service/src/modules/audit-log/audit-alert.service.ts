@@ -144,7 +144,7 @@ export class AuditAlertService {
           console.warn(`[AuditAlert] ${action.config.message}`, data);
           break;
         case 'webhook':
-          // TODO: 实现 webhook 推送
+          // TODO(v2): 实现 webhook 推送（调用 WebhookService 发送告警通知）
           break;
       }
     }

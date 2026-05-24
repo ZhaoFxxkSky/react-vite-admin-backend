@@ -442,7 +442,7 @@ export class AuthService {
     // 存入Redis，5分钟过期
     await this.redisService.set(key, code, 300);
 
-    // TODO: 接入邮件/短信发送
+    // TODO(v2): 接入邮件/短信发送（需要配置 SMTP / SMS 服务商）
     this.logger.info(
       `Password reset code generated: user=${dto.username}, code=${code}`,
     );
