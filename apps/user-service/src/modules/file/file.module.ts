@@ -8,5 +8,6 @@ import { MinioStorageProvider } from './storage/minio.storage';
   imports: [],
   controllers: [FileController],
   providers: [FileService, LocalStorageProvider, MinioStorageProvider],
+  exports: [FileService],
 })
 export class FileModule {}

@@ -49,7 +49,7 @@ export class MfaService {
       throw new BadRequestException('MFA not setup');
     }
 
-    const valid = this.verifyTOTP(user.mfaSecret, code);
+    const valid = this.verifyTOTPCore(user.mfaSecret, code);
     if (!valid) {
       throw new BadRequestException('Invalid TOTP code');
     }
@@ -86,8 +86,8 @@ export class MfaService {
     return { message: 'MFA disabled' };
   }
 
-  // 验证 TOTP 码
-  async verifyTOTP(userId: number, code: string): Promise<boolean> {
+  // 验证 TOTP 码（对外接口）
+  async verifyUserTOTP(userId: number, code: string): Promise<boolean> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { mfaSecret: true, mfaEnabled: true },
@@ -97,7 +97,7 @@ export class MfaService {
       return false;
     }
 
-    return this.verifyTOTP(user.mfaSecret, code);
+    return this.verifyTOTPCore(user.mfaSecret, code);
   }
 
   // 验证备份码
@@ -173,7 +173,7 @@ export class MfaService {
     return secret;
   }
 
-  private verifyTOTP(secret: string, code: string): boolean {
+  private verifyTOTPCore(secret: string, code: string): boolean {
     // 使用原生 crypto 实现 TOTP 验证
     const now = Math.floor(Date.now() / 1000);
     const timeStep = 30; // 30 秒窗口

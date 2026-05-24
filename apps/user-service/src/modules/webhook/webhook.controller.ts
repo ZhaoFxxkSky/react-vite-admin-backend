@@ -1,12 +1,14 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, UsePipes, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { ZodValidationPipe, JwtAuthGuard, CurrentUser, AuthenticatedUser } from '@app/user-platform';
+import { ZodValidationPipe, CurrentUser } from '@core';
+import { JwtGuard } from '@app/user-platform';
+import { AuthenticatedUser } from '@shared';
 import { WebhookService } from './webhook.service';
 import { CreateWebhookDto, createWebhookSchema, ListWebhookDto, listWebhookSchema } from './dto';
 
 @ApiTags('Webhook 管理')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtGuard)
 @Controller('webhooks')
 export class WebhookController {
   constructor(private readonly webhookService: WebhookService) {}

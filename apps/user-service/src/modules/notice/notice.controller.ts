@@ -1,12 +1,14 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, UsePipes, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { ZodValidationPipe, JwtAuthGuard, CurrentUser, AuthenticatedUser } from '@app/user-platform';
+import { ZodValidationPipe, CurrentUser } from '@core';
+import { JwtGuard } from '@app/user-platform';
+import { AuthenticatedUser } from '@shared';
 import { NoticeService } from './notice.service';
 import { CreateNoticeDto, createNoticeSchema, ListNoticeDto, listNoticeSchema } from './dto';
 
 @ApiTags('公告管理')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtGuard)
 @Controller('admin/notices')
 export class NoticeAdminController {
   constructor(private readonly noticeService: NoticeService) {}
@@ -41,7 +43,7 @@ export class NoticeAdminController {
 
 @ApiTags('公告')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtGuard)
 @Controller('notices')
 export class NoticeController {
   constructor(private readonly noticeService: NoticeService) {}

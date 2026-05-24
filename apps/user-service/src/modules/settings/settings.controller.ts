@@ -1,12 +1,12 @@
 import { Controller, Get, Put, Body, UseGuards, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '@app/user-platform';
+import { JwtGuard } from '@app/user-platform';
 import { Public } from '@core';
 import { SettingsService } from './settings.service';
 
 @ApiTags('系统设置')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtGuard)
 @Controller('settings')
 export class SettingsController {
   constructor(private readonly settingsService: SettingsService) {}
@@ -41,7 +41,7 @@ export class SettingsController {
     return this.settingsService.setSecurityConfig(config);
   }
 
-  // ===================== 品牌配置（公开接口）=====================
+  // ===================== 品牌配置（公开接口�?====================
 
   @Public()
   @Get('brand')

@@ -24,7 +24,6 @@ export class AuditLogService {
     return this.prisma.auditLog.create({
       data: {
         userId: data.userId ?? null,
-        username: data.username ?? null,
         action: data.action,
         resource: data.module,
         ip: data.ip ?? null,
@@ -32,6 +31,7 @@ export class AuditLogService {
         statusCode: data.statusCode ?? null,
         duration: data.duration ?? null,
         metadata: {
+          username: data.username,
           description: data.description,
           method: data.method,
           path: data.path,

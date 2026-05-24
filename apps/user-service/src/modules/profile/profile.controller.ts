@@ -1,13 +1,15 @@
 import { Controller, Get, Put, Post, Body, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags, ApiConsumes, ApiBody } from '@nestjs/swagger';
-import { ZodValidationPipe, AuthenticatedUser, CurrentUser, JwtAuthGuard } from '@app/user-platform';
+import { ZodValidationPipe, CurrentUser } from '@core';
+import { JwtGuard } from '@app/user-platform';
+import { AuthenticatedUser } from '@shared';
 import { ProfileService } from './profile.service';
 import { UpdateProfileDto, updateProfileSchema, ChangePasswordDto, changePasswordSchema } from './dto';
 
 @ApiTags('个人中心')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtGuard)
 @Controller('user')
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}

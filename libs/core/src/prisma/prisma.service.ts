@@ -1,6 +1,5 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 
 export function createPrismaClient(): PrismaClient {
   const connectionString = process.env.DATABASE_URL;
@@ -8,8 +7,13 @@ export function createPrismaClient(): PrismaClient {
     throw new Error('DATABASE_URL is not defined');
   }
 
-  const adapter = new PrismaMariaDb(connectionString);
-  return new PrismaClient({ adapter });
+  return new PrismaClient({
+    datasources: {
+      db: {
+        url: connectionString,
+      },
+    },
+  });
 }
 
 @Injectable()
@@ -99,6 +103,27 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   }
   get userOAuth() {
     return this.client.userOAuth;
+  }
+  get notice() {
+    return this.client.notice;
+  }
+  get noticeRead() {
+    return this.client.noticeRead;
+  }
+  get message() {
+    return this.client.message;
+  }
+  get apiKey() {
+    return this.client.apiKey;
+  }
+  get webhook() {
+    return this.client.webhook;
+  }
+  get tenant() {
+    return this.client.tenant;
+  }
+  get tenantMember() {
+    return this.client.tenantMember;
   }
 
   $transaction(...args: any[]) {

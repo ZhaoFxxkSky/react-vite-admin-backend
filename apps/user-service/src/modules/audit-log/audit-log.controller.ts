@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, UseGuards, UsePipes, Query, Res } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { ZodValidationPipe } from '@app/user-platform';
-import { JwtAuthGuard } from '@app/user-platform';
+import { ZodValidationPipe } from '@core';
+import { JwtGuard } from '@app/user-platform';
 import { Response } from 'express';
 import { AuditLogService } from './audit-log.service';
 import { ExcelService } from '../excel/excel.service';
@@ -9,7 +9,7 @@ import { ListAuditLogDto, listAuditLogSchema } from './dto';
 
 @ApiTags('审计日志')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtGuard)
 @Controller('audit-logs')
 export class AuditLogController {
   constructor(

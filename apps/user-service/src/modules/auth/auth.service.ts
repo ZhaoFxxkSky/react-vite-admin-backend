@@ -1,4 +1,4 @@
-import {
+﻿import {
   Injectable,
   UnauthorizedException,
   ConflictException,
@@ -365,7 +365,7 @@ export class AuthService {
     });
 
     const refreshTokenValue = uuidv4();
-    // 记住我：30天，否则：7天
+    // 记住我：30天，否则7天
     const refreshExpDays = rememberMe ? 30 : (jwt.refreshExpiresIn || 7);
     const refreshExpSeconds = refreshExpDays * 86400;
     const expiresAt = Math.floor(Date.now() / 1000) + refreshExpSeconds;
@@ -441,10 +441,7 @@ export class AuthService {
     }
 
     // 检查密码策略
-    const policyCheck = await this.passwordPolicyService.validatePassword(dto.newPassword);
-    if (!policyCheck.valid) {
-      throw new BadRequestException(policyCheck.message);
-    }
+    try { await this.passwordPolicyService.validatePassword(dto.newPassword); } catch (e: any) { throw new BadRequestException(e.message); }
 
     const hashed = await hashPassword(dto.newPassword);
     await this.prisma.user.update({

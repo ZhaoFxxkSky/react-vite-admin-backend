@@ -8,6 +8,7 @@ import { ZodSchema } from 'zod';
 
 function stripNulls<T>(value: T): T {
   if (value === null) return undefined as T;
+  if (value instanceof Date) return value;
   if (Array.isArray(value)) return value.map((v) => stripNulls(v)) as T;
   if (value && typeof value === 'object') {
     const out: Record<string, unknown> = {};

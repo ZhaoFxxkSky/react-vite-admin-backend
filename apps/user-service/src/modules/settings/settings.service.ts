@@ -113,13 +113,16 @@ export class SettingsService {
   }
 
   async setBrandConfig(config: any) {
-    await this.setConfigsByGroup('brand', {
+    const configs: Record<string, string> = {
       systemName: config.systemName,
       logo: config.logo,
       primaryColor: config.primaryColor,
-      loginBackground: config.loginBackground,
       copyright: config.copyright,
-    });
+    };
+    if (config.loginBackground !== undefined) {
+      configs.loginBackground = config.loginBackground;
+    }
+    await this.setConfigsByGroup('brand', configs);
     return config;
   }
 

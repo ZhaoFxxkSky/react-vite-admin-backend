@@ -59,13 +59,10 @@ export class ProfileService {
     }
 
     // 检查密码策略
-    const policyCheck = await this.passwordPolicyService.validatePassword(dto.newPassword);
-    if (!policyCheck.valid) {
-      throw new ForbiddenException(policyCheck.message);
-    }
+    try { await this.passwordPolicyService.validatePassword(dto.newPassword); } catch (e: any) { throw new ForbiddenException(e.message); }
 
     // 检查历史密码
-    const isHistory = await this.passwordPolicyService.isPasswordInHistory(userId, dto.newPassword);
+    const isHistory = await this.passwordPolicyService.checkPasswordHistory(userId, dto.newPassword);
     if (isHistory) {
       throw new ForbiddenException('New password cannot be the same as recent passwords');
     }

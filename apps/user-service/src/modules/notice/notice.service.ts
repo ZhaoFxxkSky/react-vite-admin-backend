@@ -14,8 +14,8 @@ export class NoticeService {
         type: dto.type,
         isTop: dto.isTop,
         isPopup: dto.isPopup,
-        startAt: dto.startAt,
-        endAt: dto.endAt ?? null,
+        startAt: new Date(dto.startAt),
+        endAt: dto.endAt ? new Date(dto.endAt) : null,
         targetRoles: dto.targetRoles ?? [],
         createdBy: String(userId),
       },
@@ -57,7 +57,10 @@ export class NoticeService {
     await this.getById(id);
     return this.prisma.notice.update({
       where: { id },
-      data: dto,
+      data: {
+        ...dto,
+        targetRoles: dto.targetRoles ? (dto.targetRoles as any) : undefined,
+      },
     });
   }
 
@@ -77,15 +80,18 @@ export class NoticeService {
           { endAt: null },
           { endAt: { gte: now } },
         ],
-        OR: [
-          { targetRoles: { isEmpty: true } },
-          { targetRoles: { hasSome: roleCodes } },
-        ],
       },
       orderBy: [
         { isTop: 'desc' },
         { createdAt: 'desc' },
       ],
+    });
+
+    // 过滤角色
+    const filteredNotices = notices.filter((notice: any) => {
+      const targetRoles = notice.targetRoles as string[];
+      if (!targetRoles || targetRoles.length === 0) return true;
+      return roleCodes.some((role) => targetRoles.includes(role));
     });
 
     // 查询已读状态

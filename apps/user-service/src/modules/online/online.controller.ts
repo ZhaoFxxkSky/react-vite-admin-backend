@@ -1,11 +1,13 @@
 import { Controller, Get, Delete, UseGuards, Param } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard, CurrentUser, AuthenticatedUser } from '@app/user-platform';
+import { CurrentUser } from '@core';
+import { JwtGuard } from '@app/user-platform';
+import { AuthenticatedUser } from '@shared';
 import { OnlineService } from './online.service';
 
 @ApiTags('在线用户')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtGuard)
 @Controller('sessions')
 export class OnlineController {
   constructor(private readonly onlineService: OnlineService) {}
@@ -23,7 +25,7 @@ export class OnlineController {
 
 @ApiTags('我的会话')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtGuard)
 @Controller('user/sessions')
 export class UserSessionController {
   constructor(private readonly onlineService: OnlineService) {}

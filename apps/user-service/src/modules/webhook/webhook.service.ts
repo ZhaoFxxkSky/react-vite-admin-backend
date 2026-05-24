@@ -73,13 +73,16 @@ export class WebhookService {
     const webhooks = await this.prisma.webhook.findMany({
       where: {
         status: 'active',
-        events: {
-          has: event,
-        },
       },
     });
 
-    for (const webhook of webhooks) {
+    // 过滤出订阅了该事件的 webhook（JSON 数组包含检查）
+    const filteredWebhooks = webhooks.filter((w: any) => {
+      const events = w.events as string[];
+      return Array.isArray(events) && events.includes(event);
+    });
+
+    for (const webhook of filteredWebhooks) {
       try {
         await this.sendWebhook(webhook, event, payload);
       } catch (error) {

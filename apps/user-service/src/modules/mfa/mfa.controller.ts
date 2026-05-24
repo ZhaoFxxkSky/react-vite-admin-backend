@@ -1,12 +1,14 @@
 import { Controller, Get, Post, Put, Body, UseGuards, UsePipes } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { ZodValidationPipe, JwtAuthGuard, CurrentUser, AuthenticatedUser } from '@app/user-platform';
+import { ZodValidationPipe, CurrentUser } from '@core';
+import { JwtGuard } from '@app/user-platform';
+import { AuthenticatedUser } from '@shared';
 import { MfaService } from './mfa.service';
 import { SetupMfaDto, setupMfaSchema, VerifyMfaDto, verifyMfaSchema, RecoveryCodeDto, recoveryCodeSchema } from './dto';
 
 @ApiTags('MFA 多因素认证')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtGuard)
 @Controller('mfa')
 export class MfaController {
   constructor(private readonly mfaService: MfaService) {}

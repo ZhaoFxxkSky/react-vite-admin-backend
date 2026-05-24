@@ -1,11 +1,11 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '@app/user-platform';
+import { JwtGuard } from '@app/user-platform';
 import { MonitorService } from './monitor.service';
 
 @ApiTags('系统监控')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtGuard)
 @Controller('monitor')
 export class MonitorController {
   constructor(private readonly monitorService: MonitorService) {}

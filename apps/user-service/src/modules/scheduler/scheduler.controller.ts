@@ -1,11 +1,11 @@
 import { Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '@app/user-platform';
+import { JwtGuard } from '@app/user-platform';
 import { SchedulerService } from './scheduler.service';
 
 @ApiTags('定时任务')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtGuard)
 @Controller('scheduler')
 export class SchedulerController {
   constructor(private readonly schedulerService: SchedulerService) {}

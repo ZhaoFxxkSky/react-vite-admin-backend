@@ -21,7 +21,8 @@ export class OnlineService {
 
   async getOnlineUsers() {
     // 从 Redis 获取所有活跃会话
-    const sessionKeys = await this.redisService.keys('session:*');
+    const redis = this.redisService.getClient();
+    const sessionKeys = await redis.keys('session:*');
     const users: OnlineUser[] = [];
 
     for (const key of sessionKeys) {
@@ -55,7 +56,8 @@ export class OnlineService {
 
   async getUserSessions(userId: number) {
     // 获取当前用户的所有会话
-    const sessionKeys = await this.redisService.keys('session:*');
+    const redis = this.redisService.getClient();
+    const sessionKeys = await redis.keys('session:*');
     const sessions: OnlineUser[] = [];
 
     for (const key of sessionKeys) {
