@@ -37,6 +37,8 @@ import { MessageModule } from './modules/message/message.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { ApiKeyModule } from './modules/api-key/api-key.module';
 import { WebhookModule } from './modules/webhook/webhook.module';
+import { MfaModule } from './modules/mfa/mfa.module';
+import { IpFilterModule } from './modules/ip-filter/ip-filter.module';
 
 @Module({
   imports: [
@@ -76,6 +78,7 @@ import { WebhookModule } from './modules/webhook/webhook.module';
     SettingsModule,
     ApiKeyModule,
     WebhookModule,
+    MfaModule,
   ],
 })
 export class AppModule {}

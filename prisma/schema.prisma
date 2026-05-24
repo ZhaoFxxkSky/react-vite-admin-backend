@@ -26,6 +26,9 @@ model User {
   lastLoginIp       String?  @map("last_login_ip") @db.VarChar(50)
   loginFailCount    Int      @default(0) @map("login_fail_count")
   passwordChangedAt DateTime? @map("password_changed_at")
+  mfaSecret         String?  @map("mfa_secret") @db.VarChar(255)
+  mfaEnabled        Boolean  @default(false) @map("mfa_enabled")
+  mfaBackupCodes    String?  @map("mfa_backup_codes") @db.Text
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")
 
@@ -35,6 +38,7 @@ model User {
   oauths            UserOAuth[]
   files             File[]
   refreshTokens     RefreshToken[]
+  tenantMembers     TenantMember[]
 
   @@map("tds_users")
 }
@@ -483,4 +487,36 @@ model Webhook {
   @@map("tds_webhooks")
   @@index([userId])
   @@index([status])
+}
+
+model Tenant {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(100)
+  code        String   @unique @db.VarChar(50)
+  description String?  @db.VarChar(255)
+  status      String   @default("active") @db.VarChar(20)
+  maxUsers    Int      @default(100) @map("max_users")
+  maxStorage  Int      @default(1073741824) @map("max_storage")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  members     TenantMember[]
+
+  @@map("tds_tenants")
+}
+
+model TenantMember {
+  id        Int      @id @default(autoincrement())
+  tenantId  Int      @map("tenant_id")
+  userId    Int      @map("user_id")
+  role      String   @default("member") @db.VarChar(20)
+  isPrimary Boolean  @default(false) @map("is_primary")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, userId])
+  @@map("tds_tenant_members")
+  @@index([userId])
 }

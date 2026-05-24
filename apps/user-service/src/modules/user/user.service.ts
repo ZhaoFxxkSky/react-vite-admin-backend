@@ -442,5 +442,44 @@ export class UserService {
       { username: 'lisi', realName: '李四', email: 'lisi@example.com', phone: '13800138002' },
     ];
   }
+
+  // ===================== 批量操作 =====================
+
+  @LogMethod()
+  async batchChangeStatus(ids: number[], status: string) {
+    const result = await this.prisma.user.updateMany({
+      where: { id: { in: ids } },
+      data: { status },
+    });
+
+    this.logger.info(`Batch change status: count=${result.count}, status=${status}`);
+    return { count: result.count };
+  }
+
+  @LogMethod()
+  async batchResetPassword(ids: number[], newPassword: string) {
+    const hashed = await hashPassword(newPassword);
+    const result = await this.prisma.user.updateMany({
+      where: { id: { in: ids } },
+      data: {
+        password: hashed,
+        passwordChangedAt: new Date(),
+        loginFailCount: 0,
+      },
+    });
+
+    this.logger.info(`Batch reset password: count=${result.count}`);
+    return { count: result.count };
+  }
+
+  @LogMethod()
+  async batchSetRoles(ids: number[], roleIds: number[]) {
+    for (const userId of ids) {
+      await this.setRolesByUserId(userId, roleIds);
+    }
+
+    this.logger.info(`Batch set roles: userCount=${ids.length}, roleIds=${roleIds.join(',')}`);
+    return { userCount: ids.length, roleIds };
+  }
 }
 

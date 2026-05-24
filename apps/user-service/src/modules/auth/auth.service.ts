@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   ConflictException,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -98,19 +99,19 @@ export class AuthService {
     }
     
     const user = await this.userRepository.getByUsername(dto.username);
-    return this.authenticate(user, dto.password, dto.username, ip, userAgent);
+    return this.authenticate(user, dto.password, dto.username, ip, userAgent, dto.rememberMe);
   }
 
   @LogMethod()
   async loginByEmail(dto: LoginByEmailDto, ip: string, userAgent: string) {
     const user = await this.userRepository.getByEmail(dto.email);
-    return this.authenticate(user, dto.password, dto.email, ip, userAgent);
+    return this.authenticate(user, dto.password, dto.email, ip, userAgent, (dto as any).rememberMe);
   }
 
   @LogMethod()
   async loginByPhone(dto: LoginByPhoneDto, ip: string, userAgent: string) {
     const user = await this.userRepository.getByPhone(dto.phone);
-    return this.authenticate(user, dto.password, dto.phone, ip, userAgent);
+    return this.authenticate(user, dto.password, dto.phone, ip, userAgent, (dto as any).rememberMe);
   }
 
   // ===================== 刷新 / 登出 =====================
@@ -169,6 +170,40 @@ export class AuthService {
     return { ...me, permissions };
   }
 
+  async getMyPermissions(user: AuthenticatedUser) {
+    const me = await this.userService.getMe(user.id);
+    if (!me) throw new NotFoundException('User not found');
+
+    const permissions = user.isSuperAdmin
+      ? ['*']
+      : await this.permissionService.listCodesByUserId(user.id);
+
+    const roles = await this.userService.listRolesByUserId(user.id);
+    
+    // 获取数据权限范围
+    const dataScopes = await this.prisma.roleDataPermissionScope.findMany({
+      where: {
+        roleId: { in: roles.map((r: any) => r.id) },
+      },
+    });
+
+    return {
+      userId: user.id,
+      username: user.username,
+      roles: roles.map((r: any) => ({
+        id: r.id,
+        name: r.name,
+        code: r.code,
+      })),
+      permissions,
+      dataScopes: dataScopes.map((s: any) => ({
+        resourceCode: s.resourceCode,
+        action: s.action,
+        scope: s.scope,
+      })),
+    };
+  }
+
   // ===================== 私有 =====================
 
   private readonly MAX_LOGIN_FAILS = 5;
@@ -179,6 +214,7 @@ export class AuthService {
     accountLabel: string,
     ip = 'unknown',
     userAgent = '',
+    rememberMe = false,
   ) {
     if (!user) {
       await this.loginLogService.create({
@@ -279,6 +315,7 @@ export class AuthService {
       user.isSuperAdmin,
       ip,
       userAgent,
+      rememberMe,
     );
 
     await this.prisma.user.update({
@@ -305,6 +342,7 @@ export class AuthService {
     isSuperAdmin: boolean,
     ip = 'unknown',
     userAgent = '',
+    rememberMe = false,
   ) {
     const jwt = this.configService.get<{
       secret: string;
@@ -327,8 +365,9 @@ export class AuthService {
     });
 
     const refreshTokenValue = uuidv4();
-    const refreshExp = jwt.refreshExpiresIn || '7d';
-    const refreshExpSeconds = parseInt(refreshExp, 10) * 86400;
+    // 记住我：30天，否则：7天
+    const refreshExpDays = rememberMe ? 30 : (jwt.refreshExpiresIn || 7);
+    const refreshExpSeconds = refreshExpDays * 86400;
     const expiresAt = Math.floor(Date.now() / 1000) + refreshExpSeconds;
 
     await this.redisService.set(
@@ -357,5 +396,76 @@ export class AuthService {
       accessToken,
       refreshToken: refreshTokenValue,
     };
+  }
+
+  // ===================== 忘记密码 =====================
+
+  @LogMethod()
+  async forgotPassword(dto: { username: string }) {
+    const user = await this.userRepository.getByUsername(dto.username);
+    
+    // 无论用户是否存在，都返回相同消息（防止枚举攻击）
+    if (!user) {
+      return { message: 'If the account exists, a reset code has been sent' };
+    }
+
+    // 生成6位验证码
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const key = `password_reset:${dto.username}`;
+    
+    // 存入Redis，5分钟过期
+    await this.redisService.set(key, code, 300);
+    
+    // TODO: 接入邮件/短信发送
+    this.logger.info(`Password reset code generated: user=${dto.username}, code=${code}`);
+    
+    return { 
+      message: 'If the account exists, a reset code has been sent',
+      // 开发环境返回验证码，生产环境删除此行
+      code,
+    };
+  }
+
+  @LogMethod()
+  async resetPassword(dto: { username: string; code: string; newPassword: string }) {
+    const key = `password_reset:${dto.username}`;
+    const storedCode = await this.redisService.get(key);
+    
+    if (!storedCode || storedCode !== dto.code) {
+      throw new UnauthorizedException('Invalid or expired reset code');
+    }
+
+    const user = await this.userRepository.getByUsername(dto.username);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // 检查密码策略
+    const policyCheck = await this.passwordPolicyService.validatePassword(dto.newPassword);
+    if (!policyCheck.valid) {
+      throw new BadRequestException(policyCheck.message);
+    }
+
+    const hashed = await hashPassword(dto.newPassword);
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashed,
+        passwordChangedAt: new Date(),
+        loginFailCount: 0,
+      },
+    });
+
+    // 删除验证码
+    await this.redisService.del(key);
+    
+    // 记录到密码历史
+    await this.passwordPolicyService.addPasswordHistory(user.id, hashed);
+
+    // 使所有会话失效（要求重新登录）
+    await this.sessionService.removeAllSessionsByUser(user.id);
+
+    this.logger.info(`Password reset successful: user=${dto.username}`);
+    return { message: 'Password reset successfully' };
   }
 }

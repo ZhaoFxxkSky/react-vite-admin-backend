@@ -101,6 +101,28 @@ export class SettingsService {
     return config;
   }
 
+  async getBrandConfig() {
+    const configs = await this.getConfigsByGroup('brand');
+    return {
+      systemName: configs.systemName || 'Data Space',
+      logo: configs.logo || '',
+      primaryColor: configs.primaryColor || '#1890ff',
+      loginBackground: configs.loginBackground || '',
+      copyright: configs.copyright || '© 2024 Data Space',
+    };
+  }
+
+  async setBrandConfig(config: any) {
+    await this.setConfigsByGroup('brand', {
+      systemName: config.systemName,
+      logo: config.logo,
+      primaryColor: config.primaryColor,
+      loginBackground: config.loginBackground,
+      copyright: config.copyright,
+    });
+    return config;
+  }
+
   private async getConfigsByGroup(group: string): Promise<Record<string, string>> {
     const configs = await this.prisma.sysConfig.findMany({
       where: { group },

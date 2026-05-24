@@ -277,4 +277,56 @@ export class UserController {
       body.newPassword,
     );
   }
+
+  // ===================== 批量操作 =====================
+
+  @Post('batch/enable')
+  @ApiPermission({
+    code: 'system:user:batch-enable',
+    name: '批量启用用户',
+    module: '用户管理',
+  })
+  @ApiOperation({ summary: '批量启用用户' })
+  async batchEnable(@Body('ids') ids: number[]) {
+    return this.userService.batchChangeStatus(ids, 'active');
+  }
+
+  @Post('batch/disable')
+  @ApiPermission({
+    code: 'system:user:batch-disable',
+    name: '批量禁用用户',
+    module: '用户管理',
+  })
+  @ApiOperation({ summary: '批量禁用用户' })
+  async batchDisable(@Body('ids') ids: number[]) {
+    return this.userService.batchChangeStatus(ids, 'inactive');
+  }
+
+  @Post('batch/reset-password')
+  @ApiPermission({
+    code: 'system:user:batch-reset-password',
+    name: '批量重置密码',
+    module: '用户管理',
+  })
+  @ApiOperation({ summary: '批量重置密码' })
+  async batchResetPassword(
+    @Body('ids') ids: number[],
+    @Body('newPassword') newPassword: string,
+  ) {
+    return this.userService.batchResetPassword(ids, newPassword);
+  }
+
+  @Post('batch/set-roles')
+  @ApiPermission({
+    code: 'system:user:batch-set-roles',
+    name: '批量设置角色',
+    module: '用户管理',
+  })
+  @ApiOperation({ summary: '批量设置角色（覆盖）' })
+  async batchSetRoles(
+    @Body('ids') ids: number[],
+    @Body('roleIds') roleIds: number[],
+  ) {
+    return this.userService.batchSetRoles(ids, roleIds);
+  }
 }
