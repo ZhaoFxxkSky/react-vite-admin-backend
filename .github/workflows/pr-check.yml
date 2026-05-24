@@ -8,6 +8,30 @@ jobs:
   pr-validation:
     runs-on: ubuntu-latest
 
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: data_space_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,6 +54,8 @@ jobs:
 
       - name: Generate Prisma Client
         run: pnpm run db:generate
+        env:
+          DATABASE_URL: mysql://root:root@localhost:3306/data_space_test
 
       - name: Check code format
         run: pnpm run format --check
