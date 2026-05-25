@@ -6,6 +6,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { AppLogger, LogMethod, PrismaService } from '@core';
+import { ConfigService } from '@nestjs/config';
 import { hashPassword, comparePassword } from '@shared';
 import { UserEntity } from './domain/entities/user.entity';
 import { UserRepository } from './infrastructure/repositories/user.repository';
@@ -24,6 +25,7 @@ export class UserService {
     private readonly userRepository: UserRepository,
     private readonly orgService: OrganizationService,
     private readonly logger: AppLogger,
+    private readonly configService: ConfigService,
   ) {
     this.logger.setContext(UserService.name);
   }
@@ -44,6 +46,7 @@ export class UserService {
   async getById(id: number) {
     const user = await this.userRepository.getById(id);
     if (!user) throw new NotFoundException('User not found');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...rest } = user;
     return rest;
   }
@@ -399,7 +402,7 @@ export class UserService {
       },
     });
 
-    return users.map(user => ({
+    return users.map((user) => ({
       id: user.id,
       username: user.username,
       realName: user.realName,
@@ -419,13 +422,16 @@ export class UserService {
 
     for (const row of data) {
       try {
-        await this.save({
-          username: row.username,
-          realName: row.realName,
-          email: row.email,
-          phone: row.phone,
-          password: row.password || '123456',
-        } as CreateUserDto, true);
+        await this.save(
+          {
+            username: row.username,
+            realName: row.realName,
+            email: row.email,
+            phone: row.phone,
+            password: row.password || this.configService.getOrThrow<string>('DEFAULT_USER_PASSWORD'),
+          } as CreateUserDto,
+          true,
+        );
         results.success++;
       } catch (error: any) {
         results.fail++;
@@ -438,9 +444,61 @@ export class UserService {
 
   async generateImportTemplate() {
     return [
-      { username: 'zhangsan', realName: '张三', email: 'zhangsan@example.com', phone: '13800138001' },
-      { username: 'lisi', realName: '李四', email: 'lisi@example.com', phone: '13800138002' },
+      {
+        username: 'zhangsan',
+        realName: '张三',
+        email: 'zhangsan@example.com',
+        phone: '13800138001',
+      },
+      {
+        username: 'lisi',
+        realName: '李四',
+        email: 'lisi@example.com',
+        phone: '13800138002',
+      },
     ];
   }
-}
 
+  // ===================== 批量操作 =====================
+
+  @LogMethod()
+  async batchChangeStatus(ids: number[], status: string) {
+    const result = await this.prisma.user.updateMany({
+      where: { id: { in: ids } },
+      data: { status },
+    });
+
+    this.logger.info(
+      `Batch change status: count=${result.count}, status=${status}`,
+    );
+    return { count: result.count };
+  }
+
+  @LogMethod()
+  async batchResetPassword(ids: number[], newPassword: string) {
+    const hashed = await hashPassword(newPassword);
+    const result = await this.prisma.user.updateMany({
+      where: { id: { in: ids } },
+      data: {
+        password: hashed,
+        passwordChangedAt: new Date(),
+        loginFailCount: 0,
+      },
+    });
+
+    this.logger.info(`Batch reset password: count=${result.count}`);
+    return { count: result.count };
+  }
+
+  @LogMethod()
+  async batchSetRoles(ids: number[], roleIds: number[]) {
+    for (const userId of ids) {
+      await this.setRolesByUserId(userId, roleIds);
+    }
+
+    this.logger.info(
+      `Batch set roles: userCount=${ids.length}, roleIds=${roleIds.join(',')}`,
+    );
+    return { userCount: ids.length, roleIds };
+  }
+}

@@ -18,11 +18,15 @@ import {
   loginByPhoneSchema,
   registerSchema,
   refreshTokenSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
   RegisterDto,
   LoginDto,
   LoginByEmailDto,
   LoginByPhoneDto,
   RefreshTokenDto,
+  ForgotPasswordDto,
+  ResetPasswordDto,
 } from './dto';
 import {
   ZodValidationPipe,
@@ -134,5 +138,46 @@ export class AuthController {
   })
   getUserInfoByToken(@CurrentUser() user: AuthenticatedUser) {
     return this.authService.getUserInfoByToken(user);
+  }
+
+  @Get('my-permissions')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get my permissions',
+    description: '获取当前用户的完整权限信息（菜单、按钮、数据范围）',
+  })
+  async getMyPermissions(@CurrentUser() user: AuthenticatedUser) {
+    return this.authService.getMyPermissions(user);
+  }
+
+  @Public()
+  @Post('forgot-password')
+  @ApiOperation({
+    summary: 'Forgot password',
+    description: '忘记密码，发送重置验证码',
+  })
+  @ApiBody({
+    schema: generateSchema(forgotPasswordSchema, false, '3.0') as any,
+  })
+  @UsePipes(new ZodValidationPipe(forgotPasswordSchema))
+  async forgotPassword(@Req() req: any, @Body() dto: ForgotPasswordDto) {
+    const ip = req.ip || 'unknown';
+    await this.checkRateLimit(`rate_limit:auth:forgot:${ip}`);
+    return this.authService.forgotPassword(dto);
+  }
+
+  @Public()
+  @Post('reset-password')
+  @ApiOperation({
+    summary: 'Reset password',
+    description: '使用验证码重置密码',
+  })
+  @ApiBody({ schema: generateSchema(resetPasswordSchema, false, '3.0') as any })
+  @UsePipes(new ZodValidationPipe(resetPasswordSchema))
+  async resetPassword(@Req() req: any, @Body() dto: ResetPasswordDto) {
+    const ip = req.ip || 'unknown';
+    await this.checkRateLimit(`rate_limit:auth:reset:${ip}`);
+    return this.authService.resetPassword(dto);
   }
 }

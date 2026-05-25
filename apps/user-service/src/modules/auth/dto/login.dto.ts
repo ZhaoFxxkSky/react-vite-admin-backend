@@ -19,6 +19,10 @@ export const loginSchema = extendApi(
       description: '验证码',
       example: 'a1b2',
     }),
+    rememberMe: extendApi(z.boolean().optional(), {
+      description: '记住我（30天）',
+      example: true,
+    }),
   }),
   { title: 'LoginDto', description: '登录请求参数' },
 );

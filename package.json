@@ -39,9 +39,9 @@
     "@nestjs/swagger": "^11.0.0",
     "@nestjs/terminus": "^11.0.0",
     "@nestjs/throttler": "^6.5.0",
-    "@prisma/adapter-mariadb": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@types/js-yaml": "^4.0.9",
+    "axios": "^1.16.1",
     "bcryptjs": "^3.0.3",
     "chalk": "4",
     "dotenv": "^17.4.2",
@@ -122,5 +122,10 @@
       "^@shared/(.*)$": "<rootDir>/libs/shared/src/$1",
       "^@shared$": "<rootDir>/libs/shared/src"
     }
+  },
+  "pnpm": {
+    "ignoredBuiltDependencies": [
+      "@prisma/client"
+    ]
   }
 }

@@ -7,9 +7,7 @@ export class ExcelService {
     const headerKeys = headers.map((h) => h.key);
     const headerTitles = headers.map((h) => h.title);
 
-    const rows = data.map((item) =>
-      headerKeys.map((key) => item[key] ?? ''),
-    );
+    const rows = data.map((item) => headerKeys.map((key) => item[key] ?? ''));
 
     const worksheet = XLSX.utils.aoa_to_sheet([headerTitles, ...rows]);
     const workbook = XLSX.utils.book_new();

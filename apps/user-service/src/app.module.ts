@@ -27,6 +27,17 @@ import { ConfigModule as SysConfigModule } from './modules/config/config.module'
 import { ExcelModule } from './modules/excel/excel.module';
 import { OAuthModule } from './modules/oauth/oauth.module';
 import { ThrottlerModule } from './modules/throttler/throttler.module';
+import { ProfileModule } from './modules/profile/profile.module';
+import { AuditLogModule } from './modules/audit-log/audit-log.module';
+import { OnlineModule } from './modules/online/online.module';
+import { NoticeModule } from './modules/notice/notice.module';
+import { SchedulerModule } from './modules/scheduler/scheduler.module';
+import { MonitorModule } from './modules/monitor/monitor.module';
+import { MessageModule } from './modules/message/message.module';
+import { SettingsModule } from './modules/settings/settings.module';
+import { ApiKeyModule } from './modules/api-key/api-key.module';
+import { WebhookModule } from './modules/webhook/webhook.module';
+import { MfaModule } from './modules/mfa/mfa.module';
 
 @Module({
   imports: [
@@ -56,6 +67,17 @@ import { ThrottlerModule } from './modules/throttler/throttler.module';
     ExcelModule,
     OAuthModule,
     ThrottlerModule,
+    ProfileModule,
+    AuditLogModule,
+    OnlineModule,
+    NoticeModule,
+    SchedulerModule,
+    MonitorModule,
+    MessageModule,
+    SettingsModule,
+    ApiKeyModule,
+    WebhookModule,
+    MfaModule,
   ],
 })
 export class AppModule {}

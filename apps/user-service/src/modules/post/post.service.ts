@@ -29,9 +29,7 @@ export class PostService {
   async save(data: CreatePostDto) {
     const existing = await this.postRepo.getByCode(data.code);
     if (existing) {
-      throw new ConflictException(
-        `Post code "${data.code}" already exists`,
-      );
+      throw new ConflictException(`Post code "${data.code}" already exists`);
     }
 
     return this.postRepo.save(
@@ -53,9 +51,7 @@ export class PostService {
     if (data.code && data.code !== existing.code) {
       const conflict = await this.postRepo.getByCode(data.code);
       if (conflict && conflict.id !== id) {
-        throw new ConflictException(
-          `Post code "${data.code}" already exists`,
-        );
+        throw new ConflictException(`Post code "${data.code}" already exists`);
       }
     }
 
@@ -71,9 +67,7 @@ export class PostService {
     });
 
     if (memberCount > 0) {
-      throw new BadRequestException(
-        'Cannot delete post with active members',
-      );
+      throw new BadRequestException('Cannot delete post with active members');
     }
 
     await this.postRepo.removeById(id);

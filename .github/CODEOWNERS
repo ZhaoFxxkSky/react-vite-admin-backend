@@ -1,0 +1,12 @@
+# Global default
+* @ZhaoFxxkSky
+
+# Core libraries
+/libs/core/ @ZhaoFxxkSky
+/libs/shared/ @ZhaoFxxkSky
+
+# Database schema
+/prisma/ @ZhaoFxxkSky
+
+# CI/CD
+/.github/ @ZhaoFxxkSky

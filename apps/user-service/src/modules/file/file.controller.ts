@@ -4,7 +4,6 @@ import {
   Get,
   Body,
   Query,
-  Param,
   Res,
   UseInterceptors,
   UploadedFile,
@@ -18,14 +17,13 @@ import {
   ApiBearerAuth,
   ApiConsumes,
   ApiBody,
-  ApiQuery,
 } from '@nestjs/swagger';
 import { generateSchema } from '@anatine/zod-openapi';
 import { Response } from 'express';
 import { FileService } from './file.service';
 import { CurrentUser, ZodValidationPipe } from '@core';
 import { ListFileDto, listFileSchema } from './dto/list-file.dto';
-import z from 'zod';
+
 import * as fs from 'fs';
 import { removeByIdSchema, RemoveByIdDto } from '@shared';
 

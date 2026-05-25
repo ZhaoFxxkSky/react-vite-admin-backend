@@ -26,6 +26,9 @@ model User {
   lastLoginIp       String?  @map("last_login_ip") @db.VarChar(50)
   loginFailCount    Int      @default(0) @map("login_fail_count")
   passwordChangedAt DateTime? @map("password_changed_at")
+  mfaSecret         String?  @map("mfa_secret") @db.VarChar(255)
+  mfaEnabled        Boolean  @default(false) @map("mfa_enabled")
+  mfaBackupCodes    String?  @map("mfa_backup_codes") @db.Text
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")
 
@@ -35,6 +38,7 @@ model User {
   oauths            UserOAuth[]
   files             File[]
   refreshTokens     RefreshToken[]
+  tenantMembers     TenantMember[]
 
   @@map("tds_users")
 }
@@ -400,4 +404,119 @@ model UserOAuth {
 
   @@unique([provider, providerId])
   @@map("tds_user_oauths")
+}
+
+model Notice {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(100)
+  content     String   @db.Text
+  type        String   @default("system") @db.VarChar(20)
+  isTop       Boolean  @default(false) @map("is_top")
+  isPopup     Boolean  @default(false) @map("is_popup")
+  startAt     DateTime @map("start_at")
+  endAt       DateTime? @map("end_at")
+  targetRoles Json? @map("target_roles")
+  status      String   @default("published") @db.VarChar(20)
+  createdBy   String   @map("created_by") @db.VarChar(50)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("tds_notices")
+  @@index([status, startAt, endAt])
+}
+
+model NoticeRead {
+  id        Int      @id @default(autoincrement())
+  noticeId  Int      @map("notice_id")
+  userId    Int      @map("user_id")
+  readAt    DateTime @default(now()) @map("read_at")
+
+  @@unique([noticeId, userId])
+  @@map("tds_notice_reads")
+  @@index([userId])
+}
+
+model Message {
+  id          Int      @id @default(autoincrement())
+  senderId    Int?     @map("sender_id")
+  receiverId  Int      @map("receiver_id")
+  type        String   @default("system") @db.VarChar(20)
+  title       String   @db.VarChar(100)
+  content     String   @db.Text
+  isRead      Boolean  @default(false) @map("is_read")
+  readAt      DateTime? @map("read_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("tds_messages")
+  @@index([receiverId, isRead])
+  @@index([createdAt])
+}
+
+model ApiKey {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @map("user_id")
+  name        String   @db.VarChar(100)
+  key         String   @unique @db.VarChar(255)
+  secret      String   @db.VarChar(255)
+  permissions Json @default("[]")
+  rateLimit   Int      @default(1000) @map("rate_limit")
+  lastUsedAt  DateTime? @map("last_used_at")
+  expiresAt   DateTime? @map("expires_at")
+  status      String   @default("active") @db.VarChar(20)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("tds_api_keys")
+  @@index([userId])
+  @@index([key])
+}
+
+model Webhook {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @map("user_id")
+  name        String   @db.VarChar(100)
+  url         String   @db.VarChar(500)
+  secret      String   @db.VarChar(255)
+  events      Json @default("[]")
+  status      String   @default("active") @db.VarChar(20)
+  lastTriggeredAt DateTime? @map("last_triggered_at")
+  failCount   Int      @default(0) @map("fail_count")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("tds_webhooks")
+  @@index([userId])
+  @@index([status])
+}
+
+model Tenant {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(100)
+  code        String   @unique @db.VarChar(50)
+  description String?  @db.VarChar(255)
+  status      String   @default("active") @db.VarChar(20)
+  maxUsers    Int      @default(100) @map("max_users")
+  maxStorage  Int      @default(1073741824) @map("max_storage")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  members     TenantMember[]
+
+  @@map("tds_tenants")
+}
+
+model TenantMember {
+  id        Int      @id @default(autoincrement())
+  tenantId  Int      @map("tenant_id")
+  userId    Int      @map("user_id")
+  role      String   @default("member") @db.VarChar(20)
+  isPrimary Boolean  @default(false) @map("is_primary")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, userId])
+  @@map("tds_tenant_members")
+  @@index([userId])
 }

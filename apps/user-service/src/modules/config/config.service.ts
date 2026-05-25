@@ -37,7 +37,10 @@ export class ConfigService {
     return this.toPlain(config);
   }
 
-  async getValue(key: string, defaultValue?: string): Promise<string | undefined> {
+  async getValue(
+    key: string,
+    defaultValue?: string,
+  ): Promise<string | undefined> {
     // 1. 尝试从缓存获取
     const cacheKey = `${CONFIG_CACHE_PREFIX}${key}`;
     const cached = await this.redisService.get(cacheKey);
@@ -78,9 +81,7 @@ export class ConfigService {
   async save(data: CreateConfigDto) {
     const existing = await this.configRepo.getByKey(data.key);
     if (existing) {
-      throw new ConflictException(
-        `Config key "${data.key}" already exists`,
-      );
+      throw new ConflictException(`Config key "${data.key}" already exists`);
     }
 
     const created = await this.configRepo.save(
@@ -110,9 +111,7 @@ export class ConfigService {
     if (data.key && data.key !== existing.key) {
       const conflict = await this.configRepo.getByKey(data.key);
       if (conflict && conflict.id !== id) {
-        throw new ConflictException(
-          `Config key "${data.key}" already exists`,
-        );
+        throw new ConflictException(`Config key "${data.key}" already exists`);
       }
     }
 

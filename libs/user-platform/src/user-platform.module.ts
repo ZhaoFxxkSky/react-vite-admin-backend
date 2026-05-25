@@ -7,7 +7,19 @@ import { DataScopeInterceptor } from './interceptors/data-scope.interceptor';
 
 @Global()
 @Module({
-  providers: [UserPlatformPrismaService, DataScopeCache, JwtGuard, PermissionsGuard, DataScopeInterceptor],
-  exports: [UserPlatformPrismaService, DataScopeCache, JwtGuard, PermissionsGuard, DataScopeInterceptor],
+  providers: [
+    UserPlatformPrismaService,
+    DataScopeCache,
+    JwtGuard,
+    PermissionsGuard,
+    DataScopeInterceptor,
+  ],
+  exports: [
+    UserPlatformPrismaService,
+    DataScopeCache,
+    JwtGuard,
+    PermissionsGuard,
+    DataScopeInterceptor,
+  ],
 })
 export class UserPlatformModule {}

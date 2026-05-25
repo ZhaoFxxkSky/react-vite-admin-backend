@@ -1,24 +1,24 @@
 database:
   primary:
-    host: "${DB_HOST}"
-    port: "${DB_PORT}"
-    user: "${DB_USER}"
-    password: "${DB_PASSWORD}"
-    database: "${USER_DB_NAME}"
+    host: '${DB_HOST}'
+    port: '${DB_PORT}'
+    user: '${DB_USER}'
+    password: '${DB_PASSWORD}'
+    database: '${USER_DB_NAME}'
 
 redis:
-  host: "${REDIS_HOST}"
+  host: '${REDIS_HOST}'
   port: 6379
-  password: "${REDIS_PASSWORD}"
+  password: '${REDIS_PASSWORD}'
   db: 0
 
 jwt:
-  secret: "${JWT_SECRET}"
-  expiresIn: "${JWT_EXPIRES_IN}"
-  refreshSecret: "${JWT_REFRESH_SECRET}"
-  refreshExpiresIn: "${JWT_REFRESH_EXPIRES_IN}"
+  secret: '${JWT_SECRET}'
+  expiresIn: '${JWT_EXPIRES_IN}'
+  refreshSecret: '${JWT_REFRESH_SECRET}'
+  refreshExpiresIn: '${JWT_REFRESH_EXPIRES_IN}'
 
 storage:
   minio:
-    endpoint: "${STORAGE_MINIO_ENDPOINT}"
-    bucket: "${STORAGE_MINIO_BUCKET}"
+    endpoint: '${STORAGE_MINIO_ENDPOINT}'
+    bucket: '${STORAGE_MINIO_BUCKET}'

@@ -6,7 +6,6 @@ import {
   Body,
   UseGuards,
   UsePipes,
-  ParseIntPipe,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
@@ -24,6 +23,7 @@ import {
 } from '@core';
 import { AuthenticatedUser } from '@shared';
 import * as https from 'https';
+import { randomBytes } from 'crypto';
 
 interface GitHubUser {
   id: number;
@@ -140,10 +140,7 @@ export class OAuthController {
     description: '绑定第三方登录账号',
   })
   @UsePipes(new ZodValidationPipe(bindOAuthSchema))
-  bindUser(
-    @CurrentUser() user: AuthenticatedUser,
-    @Body() dto: BindOAuthDto,
-  ) {
+  bindUser(@CurrentUser() user: AuthenticatedUser, @Body() dto: BindOAuthDto) {
     return this.oauthService.bindUser(user.id, dto);
   }
 
@@ -169,10 +166,7 @@ export class OAuthController {
   // ===================== 内部辅助 =====================
 
   private generateState(): string {
-    return (
-      Math.random().toString(36).substring(2, 15) +
-      Math.random().toString(36).substring(2, 15)
-    );
+    return randomBytes(16).toString('hex');
   }
 
   private async exchangeGitHubCode(code: string): Promise<string> {
